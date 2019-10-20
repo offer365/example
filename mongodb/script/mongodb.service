@@ -1,0 +1,13 @@
+[Unit]
+Description=Mongodb server daemon
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/home/admin/mongodb/bin/mongod -f /home/admin/mongodb/conf/mongodb.conf
+ExecStop=/usr/bin/kill -15 $MAINPID
+
+[Install]
+Alias=mongodb
+WantedBy=multi-user.target
+

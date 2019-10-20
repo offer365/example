@@ -24,22 +24,22 @@ func NewCounterLimit(interval time.Duration, limit int64) *CounterLimit {
 
 func (cl *CounterLimit) Allow() bool {
 	now := time.Now().UnixNano()
-	if now-cl.unix > cl.interval {  // 如果大于时间窗口重新进行计数
+	if now-cl.unix > cl.interval { // 如果大于时间窗口重新进行计数
 		atomic.StoreInt64(&cl.counter, 0)
 		atomic.StoreInt64(&cl.unix, now)
 		return true
 	}
 	atomic.AddInt64(&cl.counter, 1)
-	return cl.counter < cl.limit  // 判断是否进行限流
+	return cl.counter < cl.limit // 判断是否进行限流
 }
 
 func main() {
-	limit:=NewCounterLimit(time.Second,100)
-	for i:=0;i<1000;i++{
-		if limit.Allow(){
-			fmt.Printf("%d,allow\n",i)
+	limit := NewCounterLimit(time.Second, 100)
+	for i := 0; i < 1000; i++ {
+		if limit.Allow() {
+			fmt.Printf("%d,allow\n", i)
 			continue
 		}
-		fmt.Printf("%d,not allow\n",i)
+		fmt.Printf("%d,not allow\n", i)
 	}
 }

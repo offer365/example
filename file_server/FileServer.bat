@@ -1,0 +1,1 @@
+C:\Users\Administrator\go\src\github.com\offer365\example\FileServer\FileServer.exe -a  192.168.10.102:8080 -p E:\back
