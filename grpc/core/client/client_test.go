@@ -3,7 +3,7 @@ package client
 import (
 	"context"
 	"fmt"
-	pb "github.com/offer365/example/grpc_example/core/proto"
+	pb "github.com/offer365/example/grpc/core/proto"
 	"log"
 	"testing"
 )

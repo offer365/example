@@ -3,7 +3,8 @@ package server
 import (
 	"context"
 	"fmt"
-	pb "github.com/offer365/example/grpc_example/core/proto"
+	pb "github.com/offer365/example/grpc/core/proto"
+	"net"
 	"testing"
 )
 
@@ -19,11 +20,11 @@ func (p *HelloServiceImpl) Hello(
 
 func TestNewRpcServer(t *testing.T) {
 	//grpcserver,listener,err:=NewRpcServer()
-	grpcserver,listener,err:=NewRpcServer(
-		WithAddr(":7890"),
+	grpcserver,err:=NewRpcServer(
 		)
 	fmt.Println(err)
 	helloServer:=new(HelloServiceImpl)
 	pb.RegisterHelloServiceServer(grpcserver,helloServer)
+	listener,err:=net.Listen("tcp",":7788")
 	grpcserver.Serve(listener)
 }

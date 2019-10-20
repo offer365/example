@@ -5,7 +5,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	pb "github.com/offer365/example/grpc_example/Token认证/proto" // 引入proto包
+	pb "github.com/offer365/example/grpc/Token认证/proto" // 引入proto包
 	"google.golang.org/grpc/credentials"
 	"log"
 	"time"

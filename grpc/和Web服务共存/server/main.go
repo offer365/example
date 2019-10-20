@@ -31,9 +31,9 @@ func main() {
 	mux := GetHTTPServeMux()
 
 	server,err := cs.NewRpcServer(
-		cs.WithCertFile(`C:\Users\Administrator\go\src\github.com\offer365\example\grpc_example\core\cert\server.crt`),
-		cs.WithKeyFile(`C:\Users\Administrator\go\src\github.com\offer365\example\grpc_example\core\cert\server.key`),
-		cs.WithCaFile(`C:\Users\Administrator\go\src\github.com\offer365\example\grpc_example\core\cert\ca.crt`),)
+		cs.WithCertFile(`C:\Users\Administrator\go\src\github.com\offer365\example\grpc\core\cert\server.crt`),
+		cs.WithKeyFile(`C:\Users\Administrator\go\src\github.com\offer365\example\grpc\core\cert\server.key`),
+		cs.WithCaFile(`C:\Users\Administrator\go\src\github.com\offer365\example\grpc\core\cert\ca.crt`),)
 	fmt.Println(err)
 	pb.RegisterHelloServiceServer(server, helloServer)
 
