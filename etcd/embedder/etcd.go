@@ -8,7 +8,7 @@ import (
 	"go.etcd.io/etcd/embed"
 	"go.etcd.io/etcd/etcdserver/etcdserverpb"
 	"go.etcd.io/etcd/pkg/types"
-	"strconv"
+	"strings"
 	"time"
 )
 
@@ -29,10 +29,6 @@ func (e *etcdEmbed) Init(ctx context.Context, opts ...Option) (err error) {
 		opt(e.options)
 	}
 	e.conf = embed.NewConfig()
-	e.conf.InitialCluster = e.initialCluster()
-	if e.options.name == "" {
-		panic("options cluster or ip or name error.")
-	}
 	e.conf.Name = e.options.name
 	e.conf.Dir = e.options.dir
 	e.conf.InitialClusterToken = "odin-token"
@@ -60,20 +56,21 @@ func (e *etcdEmbed) Init(ctx context.Context, opts ...Option) (err error) {
 	e.conf.Logger = "zap"    // Logger is logger options: "zap", "capnslog".
 	e.conf.LogLevel = "warn" // "debug" "info" "warn" "error"
 
-	if e.conf.LCUrls, err = types.NewURLs([]string{"http://" + e.options.ip + ":" + e.options.clientPort}); err != nil {
+	if e.conf.LCUrls, err = types.NewURLs([]string{"http://" + e.options.clientAddr}); err != nil {
 		return
 	}
 
-	if e.conf.ACUrls, err = types.NewURLs([]string{"http://" + e.options.ip + ":" + e.options.clientPort}); err != nil {
+	if e.conf.ACUrls, err = types.NewURLs([]string{"http://" + e.options.clientAddr}); err != nil {
 		return
 	}
 
-	if e.conf.LPUrls, err = types.NewURLs([]string{"http://" + e.options.ip + ":" + e.options.peerPort}); err != nil {
+	if e.conf.LPUrls, err = types.NewURLs([]string{"http://" + e.options.peerAddr}); err != nil {
 		return
 	}
-	if e.conf.APUrls, err = types.NewURLs([]string{"http://" + e.options.ip + ":" + e.options.peerPort}); err != nil {
+	if e.conf.APUrls, err = types.NewURLs([]string{"http://" + e.options.peerAddr}); err != nil {
 		return
 	}
+	e.conf.InitialCluster = e.initialCluster()
 	return
 }
 
@@ -166,76 +163,25 @@ func (e *etcdEmbed) IsLeader() bool {
 	return e.ee.Server.Leader().String() == e.ee.Server.ID().String()
 }
 
+func (e *etcdEmbed) Close() {
+	e.ee.Server.Stop()
+	e.ee.Close()
+}
+
 func (e *etcdEmbed) initialCluster() (str string) {
-	for i, ip := range e.options.cluster {
-		if e.options.ip == ip {
-			e.options.name = e.options.group + strconv.Itoa(i)
-		}
-		str += fmt.Sprintf(",%s=http://%s:%s", e.options.group+strconv.Itoa(i), ip, e.options.peerPort)
+	for name, addr := range e.options.cluster {
+		str += fmt.Sprintf(",%s=http://%s", name, addr)
 	}
 	return str[1:]
 }
 
-func (e *etcdEmbed) hostWhitelist(cluster []string) (list map[string]struct{}) {
+func (e *etcdEmbed) hostWhitelist(cluster map[string]string) (list map[string]struct{}) {
 	list = make(map[string]struct{})
-	for _, n := range cluster {
-		list[n] = struct{}{}
+	for _, addr := range cluster {
+		lis := strings.Split(addr, ":")
+		if len(lis) >= 1 {
+			list[lis[0]] = struct{}{}
+		}
 	}
 	return
 }
-
-//func NewEmbed(id, dir, ip, cp, pp string, cluster []string) (em *etcdEmbed) {
-//	em = new(etcdEmbed)
-//
-//	em.conf = embed.NewConfig()
-//	em.conf.name = id
-//	em.conf.dir = dir
-//
-//	em.conf.InitialClusterToken = "odin-token"
-//	em.conf.clusterState = "new"
-//	em.conf.EnablePprof = false
-//	em.conf.TickMs = 200
-//	em.conf.ElectionMs = 2000
-//	em.conf.EnableV2 = false
-//
-//	em.conf.LCUrls, _ = types.NewURLs([]string{"http://" + ip + ":" + cp})
-//	em.conf.ACUrls, _ = types.NewURLs([]string{"http://" + ip + ":" + cp})
-//
-//	em.conf.LPUrls, _ = types.NewURLs([]string{"http://" + ip + ":" + pp})
-//	em.conf.APUrls, _ = types.NewURLs([]string{"http://" + ip + ":" + pp})
-//
-//	em.conf.HostWhitelist = em.hostWhitelist(cluster)
-//	em.conf.CORS = em.hostWhitelist(cluster)
-//	// []string{"10.0.0.1","10.0.0.2","10.0.0.3"}
-//	em.conf.InitialCluster = em.initialCluster(pp, cluster)
-//
-//	//cfg.ListenMetricsUrls = metricsURLs(c.cfg.PrivateAddress)
-//	em.conf.metrics = "extensive"
-//	//cfg.QuotaBackendBytes = c.cfg.DataQuota
-//	//cfg.clusterState = "new"
-//	em.Ready = make(chan struct{})
-//
-//	//em.conf.PeerAutoTLS=true
-//	//em.conf.ClientAutoTLS=true
-//
-//	return
-//}
-
-//func main()  {
-//	os.Remove("disk")
-//	time.Sleep(1*time.Second)
-//	e:=NewEmbed("odin0","disk","127.0.0.1","12379","12380",[]string{"127.0.0.1"})
-//	e.Run()
-//}
-//
-//func list(e *embed.Etcd)  {
-//
-//	// 展示user
-//	ul,err:=e.Server.AuthStore().UserList(&etcdserverpb.AuthUserListRequest{})
-//	fmt.Println("UserList:",err)
-//	fmt.Println("UserList:",ul.String())
-//	// 展示role
-//	rl,err:=e.Server.AuthStore().RoleList(&etcdserverpb.AuthRoleListRequest{})
-//	fmt.Println("RoleList:",err)
-//	fmt.Println("RoleList:",rl.String())
-//}

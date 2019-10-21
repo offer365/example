@@ -7,8 +7,7 @@ import (
 )
 
 type Options struct {
-	Host     string
-	Port     string
+	Addr     string
 	Timeout  time.Duration
 	Username string
 	Password string
@@ -17,21 +16,15 @@ type Option func(opts *Options)
 
 type EventFunc func(event *clientv3.Event) error
 
-func WithPort(port string) Option {
+func WithAddr(addr string) Option {
 	return func(opts *Options) {
-		opts.Port = port
+		opts.Addr = addr
 	}
 }
 
 func WithTimeout(timeout time.Duration) Option {
 	return func(opts *Options) {
 		opts.Timeout = timeout
-	}
-}
-
-func WithHost(ip string) Option {
-	return func(opts *Options) {
-		opts.Host = ip
 	}
 }
 
@@ -61,6 +54,7 @@ type Store interface {
 	KeepOnce(leaseId clientv3.LeaseID) (resp *clientv3.LeaseKeepAliveResponse, err error)
 	KeepAlive(ctx context.Context, leaseId clientv3.LeaseID) (err error)
 	Watch(ctx context.Context, key string, putFunc EventFunc, delFunc EventFunc)
+	Close()
 }
 
 func NewStore() Store {

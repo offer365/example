@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package proto;
+
+// cmd: protoc --go_out=plugins=grpc:. node.proto
+
+message Args {
+    string name = 1;
+    string addr = 2;
+}
+
+message Node {
+    string name = 1; // 节点名
+    string addr = 2; // 节点ip
+    //    string group = 3; // 组
+    //    string rpc = 4; // rpc 端口
+    map<string, string> peers = 5; // 所有节点ip地址
+    int64 start = 6; // 开始时间戳
+    string hwmd5 = 7; // 硬件md5
+    int64 now = 8; // 当前时间
+}
+
+service Stater {
+    rpc Status (Args) returns (Node);
+}
+
+
+message Request {
+    string app = 1;
+    string id = 2;
+    int64 date = 3;
+    bytes verify = 4; // 该字段是密文用于验证消息，客户端要根据 app,id,date，token(硬件信息) aes 加密生成。
+    string uuid = 5;
+    int64 lease = 6;
+}
+
+message Data {
+    bytes auth = 1;
+    int64 lease = 2;
+    bytes cipher = 3;
+}
+
+message Response {
+    int32 code = 1;
+    Data data = 2;
+    string msg = 3;
+}
+
+service Authorize {
+    rpc Auth (Request) returns (Response);
+    rpc KeepLine (Request) returns (Response);
+    rpc OffLine (Request) returns (Response);
+}

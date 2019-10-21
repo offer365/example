@@ -7,12 +7,10 @@ import (
 
 type Options struct {
 	name         string
-	group        string
 	dir          string
-	ip           string
-	clientPort   string
-	peerPort     string
-	cluster      []string
+	clientAddr   string
+	peerAddr     string
+	cluster      map[string]string
 	clusterState string // "new" or "existing"
 	metrics      string
 	metricsUrl   string
@@ -22,22 +20,20 @@ type Option func(opts *Options)
 
 func DefaultOpts() *Options {
 	return &Options{
-		name:         "",
-		group:        "default",
+		name:         "default",
 		dir:          "disk/default",
-		ip:           "127.0.0.1",
-		clientPort:   "12379",
-		peerPort:     "12380",
-		cluster:      []string{"127.0.0.1"},
+		clientAddr:   "127.0.0.1:12379",
+		peerAddr:     "127.0.0.1:12380",
+		cluster:      map[string]string{"default": "127.0.0.1"},
 		clusterState: "new",
 		metrics:      "",
 		metricsUrl:   "",
 	}
 }
 
-func WithGroup(group string) Option {
+func WithName(name string) Option {
 	return func(opts *Options) {
-		opts.group = group
+		opts.name = name
 	}
 }
 
@@ -47,27 +43,21 @@ func WithDir(dir string) Option {
 	}
 }
 
-func WithIP(ip string) Option {
+func WithClientAddr(addr string) Option {
 	return func(opts *Options) {
-		opts.ip = ip
+		opts.clientAddr = addr
 	}
 }
 
-func WithClientPort(cp string) Option {
+func WithPeerAddr(addr string) Option {
 	return func(opts *Options) {
-		opts.clientPort = cp
+		opts.peerAddr = addr
 	}
 }
 
-func WithPeerPort(pp string) Option {
+func WithCluster(cluster map[string]string) Option {
 	return func(opts *Options) {
-		opts.peerPort = pp
-	}
-}
-
-func WithCluster(clu []string) Option {
-	return func(opts *Options) {
-		opts.cluster = clu
+		opts.cluster = cluster
 	}
 }
 
@@ -93,7 +83,7 @@ func WithMetrics(addr string, mode string) Option {
 			opts.metrics = "base"
 		}
 		if addr != "" && !strings.HasPrefix(addr, "http://") {
-			opts.metricsUrl = "http://" + opts.ip + ":" + addr
+			opts.metricsUrl = "http://" + addr
 			return
 		}
 		opts.metricsUrl = addr
@@ -105,6 +95,7 @@ type Embed interface {
 	Run(ready chan struct{}) (err error)
 	SetAuth(username, password string) (err error)
 	IsLeader() bool
+	Close()
 }
 
 func NewEmbed() Embed {

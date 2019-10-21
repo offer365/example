@@ -2,9 +2,8 @@ package dao
 
 import (
 	"context"
-	"crypto/md5"
-	"encoding/base64"
 	"errors"
+	"github.com/offer365/example/tools"
 	"github.com/offer365/odin/log"
 	"go.etcd.io/etcd/clientv3"
 	"go.etcd.io/etcd/clientv3/concurrency"
@@ -30,7 +29,7 @@ func (es *etcdStore) Init(ctx context.Context, opts ...Option) (err error) {
 	}
 
 	es.config = clientv3.Config{
-		Endpoints:   []string{"http://" + es.options.Host + ":" + es.options.Port},
+		Endpoints:   []string{"http://" + es.options.Addr},
 		DialTimeout: es.options.Timeout,
 		Username:    es.options.Username,
 		Password:    es.options.Password,
@@ -46,10 +45,16 @@ func (es *etcdStore) Init(ctx context.Context, opts ...Option) (err error) {
 	return
 }
 
+func (es *etcdStore) Close() {
+	es.watcher.Close()
+	es.lease.Close()
+	es.client.Close()
+}
+
 func (es *etcdStore) Get(key string, lock bool) (resp *clientv3.GetResponse, err error) {
 	var unlock func()
 	if lock {
-		unlock, err = es.lock(es.md5(key))
+		unlock, err = es.lock(tools.Md5sum([]byte(key),nil))
 		defer unlock()
 	}
 	ctx, _ := context.WithTimeout(context.Background(), es.timeout)
@@ -59,7 +64,7 @@ func (es *etcdStore) Get(key string, lock bool) (resp *clientv3.GetResponse, err
 func (es *etcdStore) GetAll(prefix string, lock bool) (resp *clientv3.GetResponse, err error) {
 	var unlock func()
 	if lock {
-		unlock, err = es.lock(es.md5(prefix))
+		unlock, err = es.lock(tools.Md5sum([]byte(prefix),nil))
 		defer unlock()
 	}
 	ctx, _ := context.WithTimeout(context.Background(), es.timeout)
@@ -69,7 +74,7 @@ func (es *etcdStore) GetAll(prefix string, lock bool) (resp *clientv3.GetRespons
 func (es *etcdStore) Count(prefix string, lock bool) (resp *clientv3.GetResponse, err error) {
 	var unlock func()
 	if lock {
-		unlock, err = es.lock(es.md5(prefix))
+		unlock, err = es.lock(tools.Md5sum([]byte(prefix),nil))
 		defer unlock()
 	}
 	ctx, _ := context.WithTimeout(context.Background(), es.timeout)
@@ -79,7 +84,7 @@ func (es *etcdStore) Count(prefix string, lock bool) (resp *clientv3.GetResponse
 func (es *etcdStore) Put(key, val string, lock bool) (resp *clientv3.PutResponse, err error) {
 	var unlock func()
 	if lock {
-		unlock, err = es.lock(es.md5(key))
+		unlock, err = es.lock(tools.Md5sum([]byte(key),nil))
 		defer unlock()
 	}
 	ctx, _ := context.WithTimeout(context.Background(), es.timeout)
@@ -89,7 +94,7 @@ func (es *etcdStore) Put(key, val string, lock bool) (resp *clientv3.PutResponse
 func (es *etcdStore) Del(key string, lock bool) (resp *clientv3.DeleteResponse, err error) {
 	var unlock func()
 	if lock {
-		unlock, err = es.lock(es.md5(key))
+		unlock, err = es.lock(tools.Md5sum([]byte(key),nil))
 		defer unlock()
 	}
 	ctx, _ := context.WithTimeout(context.Background(), es.timeout)
@@ -99,7 +104,7 @@ func (es *etcdStore) Del(key string, lock bool) (resp *clientv3.DeleteResponse, 
 func (es *etcdStore) DelAll(prefix string, lock bool) (resp *clientv3.DeleteResponse, err error) {
 	var unlock func()
 	if lock {
-		unlock, err = es.lock(es.md5(prefix))
+		unlock, err = es.lock(tools.Md5sum([]byte(prefix),nil))
 		defer unlock()
 	}
 	ctx, _ := context.WithTimeout(context.Background(), es.timeout)
@@ -117,7 +122,7 @@ func (es *etcdStore) Lease(key string, ttl int64) (resp *clientv3.LeaseGrantResp
 func (es *etcdStore) PutWithLease(key, val string, leaseId clientv3.LeaseID, lock bool) (resp *clientv3.PutResponse, err error) {
 	var unlock func()
 	if lock {
-		unlock, err = es.lock(es.md5(key))
+		unlock, err = es.lock(tools.Md5sum([]byte(key),nil))
 		defer unlock()
 	}
 	ctx, _ := context.WithTimeout(context.Background(), es.timeout)
@@ -127,7 +132,7 @@ func (es *etcdStore) PutWithLease(key, val string, leaseId clientv3.LeaseID, loc
 func (es *etcdStore) DelWithLease(key string, leaseId clientv3.LeaseID, lock bool) (resp *clientv3.DeleteResponse, err error) {
 	var unlock func()
 	if lock {
-		unlock, err = es.lock(es.md5(key))
+		unlock, err = es.lock(tools.Md5sum([]byte(key),nil))
 		defer unlock()
 	}
 	if _, err := es.lease.Revoke(context.TODO(), leaseId); err != nil {
@@ -230,8 +235,4 @@ func (es *etcdStore) lock(name string) (func(), error) {
 	return unlock, nil
 }
 
-func (es *etcdStore) md5(key string) string {
-	h := md5.New()
-	h.Write([]byte(key))
-	return base64.StdEncoding.EncodeToString(h.Sum(nil))
-}
+

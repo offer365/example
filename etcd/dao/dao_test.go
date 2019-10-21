@@ -3,6 +3,7 @@ package dao
 import (
 	"context"
 	"fmt"
+	"github.com/offer365/example/etcd/embedder"
 	"go.etcd.io/etcd/clientv3"
 	"strconv"
 	"testing"
@@ -14,10 +15,9 @@ var store Store
 func init() {
 	store = NewStore()
 	err := store.Init(context.Background(),
-		WithHost("10.0.0.200"),
-		WithPort("12379"),
-		WithUsername("root"),
-		WithPassword("613f#8d164df4ACPF49@93a510df49!66f98b*d6"),
+		WithAddr("127.0.0.1:12379"),
+		WithUsername(embedder.Username),
+		WithPassword(embedder.Password),
 		WithTimeout(time.Millisecond*2000),
 	)
 	fmt.Println(err)

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 
@@ -34,5 +35,5 @@ func main() {
 		log.Fatalf("client.Search err: %v", err)
 	}
 
-	log.Printf("resp: %s", resp.Value)
+	fmt.Printf("resp: %s", resp.Value)
 }
