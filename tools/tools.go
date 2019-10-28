@@ -35,6 +35,11 @@ func Abs(n int64) int64 {
 	y := n >> 63
 	return (n ^ y) - y
 }
+// 绝对值
+func CalcAbs(a int64) (ret int64) {
+	ret = (a ^ a>>31) - a>>31
+	return
+}
 
 func Md5sum(byt []byte,salt []byte) string  {
 	h := md5.New()

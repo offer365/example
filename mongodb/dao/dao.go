@@ -2,16 +2,20 @@ package dao
 
 import (
 	"context"
+	"go.mongodb.org/mongo-driver/mongo"
 	"io"
 	"strings"
 	"time"
 )
 
+type CallBack func(*mongo.Cursor) error
+
+
 // 数据库
 type DB interface {
 	Init(ctx context.Context, option ...Option) (err error)
-	Insert(table string, instance interface{}) (id string, err error)
-	Find(table string, filter interface{}, queryF interface{}, skip int64, limit int64, sort int) error
+	Insert(coll string, instance interface{}) (id string, err error)
+	Find(coll string, filter interface{}, callback CallBack, skip int64, limit int64, sort int) error
 	FindOne(coll string, filter interface{}, result interface{}) (err error)
 	Delete(coll string, filter interface{}) (err error)
 	Update(coll string, filter, update interface{}) (err error)
@@ -31,7 +35,7 @@ type Store interface {
 func NewDB(driver string) (db DB) {
 	switch strings.ToLower(driver) {
 	case "mongodb", "mongo":
-		return new(MongoCli)
+		return new(mongoCli)
 	}
 	return nil
 }
@@ -39,7 +43,7 @@ func NewDB(driver string) (db DB) {
 func NewStore(driver string) (store Store) {
 	switch strings.ToLower(driver) {
 	case "mongodb", "mongo":
-		return new(MongoCli)
+		return new(mongoCli)
 	}
 	return nil
 }
@@ -77,6 +81,12 @@ func WithHost(host string) Option {
 func WithPort(port string) Option {
 	return func(opts *Options) {
 		opts.Port = port
+	}
+}
+
+func WithDB(db string) Option {
+	return func(opts *Options) {
+		opts.Database = db
 	}
 }
 

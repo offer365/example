@@ -19,7 +19,7 @@ func TestRunTime(t *testing.T) {
 }
 
 func TestMd5sum(t *testing.T) {
-	for range time.Tick(time.Second){
+	for range time.Tick(10*time.Second){
 		str:=RandString(16)
 		fmt.Println("......................................")
 		fmt.Println(str)

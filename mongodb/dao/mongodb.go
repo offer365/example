@@ -13,9 +13,8 @@ import (
 	"io"
 )
 
-type CursorFunc func(cursor *mongo.Cursor) (err error)
 
-type MongoCli struct {
+type mongoCli struct {
 	options     *Options
 	host        string
 	client      *mongo.Client
@@ -25,7 +24,7 @@ type MongoCli struct {
 
 type CursorF func(*mongo.Cursor) error
 
-func (m *MongoCli) Init(ctx context.Context, opts ...Option) (err error) {
+func (m *mongoCli) Init(ctx context.Context, opts ...Option) (err error) {
 	m.options = DefaultOpts()
 	for _, opt := range opts {
 		opt(m.options)
@@ -75,7 +74,7 @@ func (m *MongoCli) Init(ctx context.Context, opts ...Option) (err error) {
 }
 
 // 参数: 数据集名称  数据
-func (m *MongoCli) Insert(coll string, data interface{}) (id string, err error) {
+func (m *mongoCli) Insert(coll string, data interface{}) (id string, err error) {
 	Coll, ok := m.Collections[coll]
 	if !ok {
 		log.Error("Collection is not exist.")
@@ -94,7 +93,7 @@ func (m *MongoCli) Insert(coll string, data interface{}) (id string, err error) 
 	return oid.Hex(), err
 }
 
-func (m *MongoCli) Delete(coll string, filter interface{}) (err error) {
+func (m *mongoCli) Delete(coll string, filter interface{}) (err error) {
 	Coll, ok := m.Collections[coll]
 	if !ok {
 		log.Error("Collection is not exist.")
@@ -105,7 +104,7 @@ func (m *MongoCli) Delete(coll string, filter interface{}) (err error) {
 	return
 }
 
-func (m *MongoCli) FindOne(coll string, filter interface{}, result interface{}) (err error) {
+func (m *mongoCli) FindOne(coll string, filter interface{}, result interface{}) (err error) {
 	var (
 		single *mongo.SingleResult
 	)
@@ -125,7 +124,7 @@ func (m *MongoCli) FindOne(coll string, filter interface{}, result interface{}) 
 	return
 }
 
-func (m *MongoCli) Exist(coll string, filter interface{}) bool {
+func (m *mongoCli) Exist(coll string, filter interface{}) bool {
 	Coll, ok := m.Collections[coll]
 	if !ok {
 		log.Error("Collection is not exist.")
@@ -139,7 +138,7 @@ func (m *MongoCli) Exist(coll string, filter interface{}) bool {
 	}
 }
 
-func (m *MongoCli) Find(coll string, filter interface{}, cursorF interface{}, skip, limit int64, sort int) (err error) {
+func (m *mongoCli) Find(coll string, filter interface{}, callback CallBack, skip, limit int64, sort int) (err error) {
 	var (
 		cursor *mongo.Cursor
 	)
@@ -161,15 +160,10 @@ func (m *MongoCli) Find(coll string, filter interface{}, cursorF interface{}, sk
 			log.Error("cursor.Close error.", err)
 		}
 	}()
-
-	f, ok := cursorF.(func(*mongo.Cursor) error)
-	if ok {
-		return f(cursor)
-	}
-	return errors.New("func type error.")
+	return callback(cursor)
 }
 
-func (m *MongoCli) Count(coll string, filter interface{}) (num int64, err error) {
+func (m *mongoCli) Count(coll string, filter interface{}) (num int64, err error) {
 	Coll, ok := m.Collections[coll]
 	if !ok {
 		log.Error("Collection is not exist.")
@@ -179,7 +173,7 @@ func (m *MongoCli) Count(coll string, filter interface{}) (num int64, err error)
 	return Coll.CountDocuments(ctx, filter)
 }
 
-func (m *MongoCli) FindOneUpdate(coll string, filter, update interface{}) (err error) {
+func (m *mongoCli) FindOneUpdate(coll string, filter, update interface{}) (err error) {
 	Coll, ok := m.Collections[coll]
 	if !ok {
 		log.Error("Collection is not exist.")
@@ -190,7 +184,7 @@ func (m *MongoCli) FindOneUpdate(coll string, filter, update interface{}) (err e
 	return result.Err()
 }
 
-func (m *MongoCli) Last(coll string) (last interface{}, err error) {
+func (m *mongoCli) Last(coll string) (last interface{}, err error) {
 	Coll, ok := m.Collections[coll]
 	if !ok {
 		log.Error("Collection is not exist.")
@@ -203,7 +197,7 @@ func (m *MongoCli) Last(coll string) (last interface{}, err error) {
 }
 
 // 聚合查询
-func (m *MongoCli) Aggregation(coll string, pipe interface{}, cursorF interface{}) (err error) {
+func (m *mongoCli) Aggregation(coll string, pipe interface{}, cursorF interface{}) (err error) {
 	var (
 		cursor *mongo.Cursor
 	)
@@ -234,7 +228,7 @@ func (m *MongoCli) Aggregation(coll string, pipe interface{}, cursorF interface{
 
 }
 
-func (m *MongoCli) LastUpdate(coll string, update interface{}) (err error) {
+func (m *mongoCli) LastUpdate(coll string, update interface{}) (err error) {
 	Coll, ok := m.Collections[coll]
 	if !ok {
 		log.Error("Collection is not exist.")
@@ -246,7 +240,7 @@ func (m *MongoCli) LastUpdate(coll string, update interface{}) (err error) {
 	return result.Err()
 }
 
-func (m *MongoCli) Update(coll string, filter interface{}, update interface{}) (err error) {
+func (m *mongoCli) Update(coll string, filter interface{}, update interface{}) (err error) {
 	Coll, ok := m.Collections[coll]
 	if !ok {
 		log.Error("Collection is not exist.")
@@ -258,7 +252,7 @@ func (m *MongoCli) Update(coll string, filter interface{}, update interface{}) (
 	return
 }
 
-func (m *MongoCli) Upload(name string, source io.Reader) (id string, err error) {
+func (m *mongoCli) Upload(name string, source io.Reader) (id string, err error) {
 	bucket, err := gridfs.NewBucket(m.database)
 	if err != nil {
 		return
@@ -271,7 +265,7 @@ func (m *MongoCli) Upload(name string, source io.Reader) (id string, err error) 
 
 }
 
-func (m *MongoCli) Download(id interface{}, stream io.Writer) (size int64, err error) {
+func (m *mongoCli) Download(id interface{}, stream io.Writer) (size int64, err error) {
 	bucket, err := gridfs.NewBucket(m.database)
 	if err != nil {
 		return
@@ -280,7 +274,7 @@ func (m *MongoCli) Download(id interface{}, stream io.Writer) (size int64, err e
 	return
 }
 
-func (m *MongoCli) FindFile(filter interface{}, cursorF interface{}, skip, limit int32) (err error) {
+func (m *mongoCli) FindFile(filter interface{}, cursorF interface{}, skip, limit int32) (err error) {
 	bucket, err := gridfs.NewBucket(m.database)
 	if err != nil {
 		return
@@ -305,7 +299,7 @@ func (m *MongoCli) FindFile(filter interface{}, cursorF interface{}, skip, limit
 	return errors.New("func type error.")
 }
 
-func (m *MongoCli) DeleteFile(id interface{}) (err error) {
+func (m *mongoCli) DeleteFile(id interface{}) (err error) {
 	bucket, err := gridfs.NewBucket(m.database)
 	if err != nil {
 		return

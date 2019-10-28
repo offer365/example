@@ -7,12 +7,12 @@ source /etc/profile
 java -version
 cd /usr/local/kafka_2.12-2.3.0/
 sed -i "/^broker.id=/ s/0/1/g" config/server.properties
-# 杩藉姞 advertised.host.name=kafka鏈嶅姟鍣╥p 鍒� kafka 閰嶇疆鏂囦欢 config/server.properties
+# 追加 advertised.host.name=kafka服务器ip kafka 配置文件 config/server.properties
 echo "advertised.host.name=10.0.0.55" >>config/zookeeper.properties
 ./bin/zookeeper-server-start.sh -daemon config/zookeeper.properties
 ./bin/kafka-server-start.sh config/server.properties
 
-# 鍛戒护琛屽紑鍚痥afka娑堣垂鑰呭鎴风鍛戒护
+# 命令行开启kafka消费者客户端命令
 # ./bin/kafka-console-consumer.sh --bootstrap-server 127.0.0.1:9092 --topic asr_log
-# Note锛氬湪0.9鐗堟湰鎸囧畾鐨勬槸zookeeper server锛�0.11鍙樻垚浜哹roker server
+# Note：在0.9版本指定的是zookeeper server 0.11变成了broker server
 # ./bin/kafka-console-consumer.sh -zookeeper localhost:2181 --topic asr_log

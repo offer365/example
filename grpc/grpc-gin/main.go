@@ -74,7 +74,7 @@ func gRpcServer() *grpc.Server {
 }
 
 func ginServer() http.Handler {
-	//gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	r.GET("/test", func(c *gin.Context) {
 		c.String(200, "hello")
@@ -93,7 +93,7 @@ func listener() net.Listener {
 	}
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{certificate},
-		ClientAuth:   tls.RequestClientCert, // NOTE: 这是可选的!
+		ClientAuth:   tls.NoClientCert, // NOTE: 这是可选的!
 		ClientCAs:    certPool,
 		InsecureSkipVerify:true,
 		Rand:rand.Reader,
