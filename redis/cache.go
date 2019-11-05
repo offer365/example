@@ -1,15 +1,16 @@
-package cache
+package redis
 
 import (
-	"github.com/gomodule/redigo/redis"
 	"strings"
 	"time"
+
+	"github.com/gomodule/redigo/redis"
 )
 
 type Options struct {
-	Host      string
-	Port      string
+	Addr      string
 	Password  string
+	Database  string
 	Timeout   time.Duration
 	MaxIdle   int
 	MaxActive int
@@ -17,8 +18,7 @@ type Options struct {
 
 func DefaultOpts() *Options {
 	return &Options{
-		Host:      "127.0.0.1",
-		Port:      "6379",
+		Addr:      "127.0.0.1:6379",
 		Password:  "",
 		Timeout:   20 * time.Second,
 		MaxIdle:   60,
@@ -28,15 +28,15 @@ func DefaultOpts() *Options {
 
 type Option func(opts *Options)
 
-func WithHost(host string) Option {
+func WithAddr(addr string) Option {
 	return func(opts *Options) {
-		opts.Host = host
+		opts.Addr = addr
 	}
 }
 
-func WithPort(port string) Option {
+func WithDB(db string) Option {
 	return func(opts *Options) {
-		opts.Port = port
+		opts.Database = db
 	}
 }
 

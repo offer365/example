@@ -1,4 +1,4 @@
-package dao
+package mysql
 
 import (
 	"fmt"
@@ -19,7 +19,7 @@ func TestNewDB(t *testing.T) {
 	driver := NewDB("mysql")
 	var err error
 	Db, err = driver.Init(
-		WithHost("10.0.0.110"),
+		WithAddr("10.0.0.110:3306"),
 		WithDatabase("golang"),
 		WithUsername("root"),
 		WithPwd("Zrz0123456789"))

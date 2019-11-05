@@ -1,8 +1,9 @@
-package dao
+package mysql
 
 import (
-	"github.com/jmoiron/sqlx"
 	"strings"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type DB interface {
@@ -18,11 +19,10 @@ func NewDB(driver string) (db DB) {
 	return nil
 }
 
-//dsn:="root:bd5bd7e9e2c2c26fa8b4e791ff1428c1@tcp(140.143.244.118:3306)/golang_db"
+// dsn:="root:bd5bd7e9e2c2c26fa8b4e791ff1428c1@tcp(140.143.244.118:3306)/golang_db"
 
 type Options struct {
-	Host        string
-	Port        string
+	Addr        string
 	Username    string
 	Password    string
 	Database    string
@@ -33,8 +33,7 @@ type Options struct {
 
 func DefaultOpts() *Options {
 	return &Options{
-		Host:        "127.0.0.1",
-		Port:        "3306",
+		Addr:        "127.0.0.1:3306",
 		Username:    "root",
 		Password:    "",
 		Database:    "",
@@ -46,15 +45,9 @@ func DefaultOpts() *Options {
 
 type Option func(opts *Options)
 
-func WithHost(host string) Option {
+func WithAddr(addr string) Option {
 	return func(opts *Options) {
-		opts.Host = host
-	}
-}
-
-func WithPort(port string) Option {
-	return func(opts *Options) {
-		opts.Port = port
+		opts.Addr = addr
 	}
 }
 

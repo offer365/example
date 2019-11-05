@@ -1,4 +1,4 @@
-package cache
+package redis
 
 import (
 	"github.com/gomodule/redigo/redis"
@@ -16,7 +16,7 @@ func (rc *RedisCli) Init(opts ...Option) {
 	for _, opt := range opts {
 		opt(rc.options)
 	}
-	rc.host = rc.options.Host + ":" + rc.options.Port
+	rc.host = rc.options.Addr
 	rc.pool = &redis.Pool{
 		MaxIdle:     64,                 // 连接池最大的空闲的数量
 		MaxActive:   1000,               // 最大连接数

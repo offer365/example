@@ -1,0 +1,5 @@
+Reading and writing files are basic tasks needed for many Go programs. First we’ll look at some examples of reading files.
+You’ll often want more control over how and what parts of a file are read. For these tasks, start by Opening a file to obtain an os.File value.
+Content and build toolchain for Go by Example, a site that teaches Go via annotated example programs.
+The Go by Example site is built by extracting code and comments from source files in examples and rendering them via the templates into a static public directory. The programs implementing this build process are in tools, along with some vendor'd dependencies in vendor.
+The built public directory can be served by any static content system. The production site uses S3 and CloudFront, for example.

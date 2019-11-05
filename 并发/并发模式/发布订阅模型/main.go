@@ -87,6 +87,7 @@ func (p *Publisher) sendTopic(
 	sub sub, topic topic, v interface{}, wg *sync.WaitGroup,
 ) {
 	defer wg.Done()
+	// 判断是否是全部订阅  是否是订阅的topic
 	if topic != nil && !topic(v) {
 		return
 	}
@@ -111,12 +112,14 @@ func main() {
 
 	p.Publish("hello,  world!")
 	p.Publish("hello, golang!")
+	// 发布者
 	go func() {
 		for range time.NewTicker(time.Second).C{
 			p.Publish("hehe")
 		}
 	}()
 
+	// 订阅者
 	go func() {
 		for msg := range all {
 			fmt.Println("all:", msg)

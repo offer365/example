@@ -1,4 +1,4 @@
-package dao
+package mysql
 
 import (
 	_ "github.com/go-sql-driver/mysql"
@@ -17,7 +17,7 @@ func (m *MysqlCli) Init(opts ...Option) (db *sqlx.DB, err error) {
 		opt(m.options)
 	}
 	//dsn:="root:666666@tcp(127.0.0.1:3306)/golang_db?charset=utf8"
-	dsn := m.options.Username + ":" + m.options.Password + "@tcp(" + m.options.Host + ":" + m.options.Port + ")/" + m.options.Database
+	dsn := m.options.Username + ":" + m.options.Password + "@tcp(" + m.options.Addr + ")/" + m.options.Database
 	if m.options.CharSet != "" {
 		dsn += "?charset=" + m.options.CharSet
 	}

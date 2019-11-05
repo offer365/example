@@ -1,4 +1,4 @@
-package cache
+package redis
 
 import (
 	"encoding/json"
@@ -16,7 +16,7 @@ var rdb Cache
 func TestNewCache(t *testing.T) {
 	rdb = NewCache("redis")
 	rdb.Init(
-		WithHost("10.0.0.92"))
+		WithAddr("10.0.0.92:6379"))
 	conn = rdb.Conn()
 	defer conn.Close()
 	// 文档  https://godoc.org/github.com/gomodule/redigo/redis#pkg-examples
