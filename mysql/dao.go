@@ -10,7 +10,7 @@ type DB interface {
 	Init(opts ...Option) (db *sqlx.DB, err error)
 }
 
-// 建库sql: CREATE DATABASE IF NOT EXISTS golang DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+// 建库sql: CREATE DATABASE IF NOT EXISTS `giligili` DEFAULT CHARACTER SET 'utf8mb4' DEFAULT COLLATE 'utf8mb4_unicode_ci';
 func NewDB(driver string) (db DB) {
 	switch strings.ToLower(driver) {
 	case "mysql":

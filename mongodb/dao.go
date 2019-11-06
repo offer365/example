@@ -1,4 +1,4 @@
-package dao
+package mongodb
 
 import (
 	"context"
@@ -49,8 +49,7 @@ func NewStore(driver string) (store Store) {
 }
 
 type Options struct {
-	Host      string
-	Port      string
+	Addr      string
 	Username  string
 	Password  string
 	Timeout   time.Duration
@@ -60,8 +59,7 @@ type Options struct {
 
 func DefaultOpts() *Options {
 	return &Options{
-		Host:      "127.0.0.1",
-		Port:      "27017",
+		Addr:      "127.0.0.1:27017",
 		Username:  "admin",
 		Password:  "",
 		Timeout:   2 * time.Second,
@@ -72,15 +70,9 @@ func DefaultOpts() *Options {
 
 type Option func(opts *Options)
 
-func WithHost(host string) Option {
+func WithAddr(addr string) Option {
 	return func(opts *Options) {
-		opts.Host = host
-	}
-}
-
-func WithPort(port string) Option {
-	return func(opts *Options) {
-		opts.Port = port
+		opts.Addr = addr
 	}
 }
 

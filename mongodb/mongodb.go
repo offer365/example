@@ -1,4 +1,4 @@
-package dao
+package mongodb
 
 import (
 	"context"
@@ -16,7 +16,6 @@ import (
 
 type mongoCli struct {
 	options     *Options
-	host        string
 	client      *mongo.Client
 	database    *mongo.Database
 	Collections map[string]*mongo.Collection
@@ -29,10 +28,8 @@ func (m *mongoCli) Init(ctx context.Context, opts ...Option) (err error) {
 	for _, opt := range opts {
 		opt(m.options)
 	}
-	m.host = m.options.Host + ":" + m.options.Port
-
 	//m.client, err =mongo.Connect(ctx, options.Client().ApplyURI("mongodb://"+username+":"+password+"@"+m.host))
-	m.client, err = mongo.Connect(ctx, options.Client().ApplyURI("mongodb://"+m.host), options.Client().SetAuth(options.Credential{Username: m.options.Username, Password: m.options.Password, AuthSource: m.options.Database}))
+	m.client, err = mongo.Connect(ctx, options.Client().ApplyURI("mongodb://"+m.options.Addr), options.Client().SetAuth(options.Credential{Username: m.options.Username, Password: m.options.Password, AuthSource: m.options.Database}))
 	if err != nil {
 		log.Fatal(err)
 		return
