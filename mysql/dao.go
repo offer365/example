@@ -14,7 +14,7 @@ type DB interface {
 func NewDB(driver string) (db DB) {
 	switch strings.ToLower(driver) {
 	case "mysql":
-		return new(MysqlCli)
+		return new(mysqlCli)
 	}
 	return nil
 }
@@ -29,6 +29,7 @@ type Options struct {
 	MaxConn     int // 最大连接数
 	MaxIdleConn int // 最小空闲连接
 	CharSet     string
+	ParseTime   bool
 }
 
 func DefaultOpts() *Options {
@@ -40,6 +41,7 @@ func DefaultOpts() *Options {
 		MaxConn:     100,
 		MaxIdleConn: 16,
 		CharSet:     "utf8",
+		ParseTime:   false,
 	}
 }
 
@@ -84,5 +86,11 @@ func WithMaxIdleConn(idle int) Option {
 func WithCharSet(char string) Option {
 	return func(opts *Options) {
 		opts.CharSet = char
+	}
+}
+
+func WithParseTime(p bool) Option {
+	return func(opts *Options) {
+		opts.ParseTime = p
 	}
 }

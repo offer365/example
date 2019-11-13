@@ -2,8 +2,9 @@ package mysql
 
 import (
 	"fmt"
-	"github.com/jmoiron/sqlx"
 	"testing"
+
+	"github.com/jmoiron/sqlx"
 )
 
 var Db *sqlx.DB
@@ -25,16 +26,16 @@ func TestNewDB(t *testing.T) {
 		WithPwd("Zrz0123456789"))
 	fmt.Println(err)
 
-	//ExampleCreateTable()
-	//ExampleExecInsert()
-	//ExampleExecUpdate()
-	//ExamplePrepareSelect()
-	//ExamplePrepareInsert()
-	//ExamplePreparexSelect()
-	//ExampleQuery()
-	//ExampleQueryx()
-	//ExampleQueryRow()
-	//ExampleSelectGet()
+	// ExampleCreateTable()
+	// ExampleExecInsert()
+	// ExampleExecUpdate()
+	// ExamplePrepareSelect()
+	// ExamplePrepareInsert()
+	// ExamplePreparexSelect()
+	// ExampleQuery()
+	// ExampleQueryx()
+	// ExampleQueryRow()
+	// ExampleSelectGet()
 	ExampleTx()
 }
 
@@ -49,15 +50,15 @@ func ExampleCreateTable() {
 
 }
 
-//Exec和MustExec从连接池中获取一个连接然后只想对应的query操作。
+// Exec和MustExec从连接池中获取一个连接然后只想对应的query操作。
 // 对于不支持ad-hoc query execution的驱动，在操作执行的背后会创建一个prepared statement。
 // 在结果返回前这个connection会返回到连接池中。
 //
-//需要注意的是不同的数据库类型使用的占位符不同，mysql采用？作为占位符号。
-//MySQL 使用？
-//PostgreSQL 使用1,1,2等等
-//SQLite 使用？或$1
-//Oracle 使用:name
+// 需要注意的是不同的数据库类型使用的占位符不同，mysql采用？作为占位符号。
+// MySQL 使用？
+// PostgreSQL 使用1,1,2等等
+// SQLite 使用？或$1
+// Oracle 使用:name
 
 // 增
 func ExampleExecInsert() {
@@ -93,7 +94,7 @@ func ExampleExecDelete() {
 	}
 }
 
-//sql预处理（Prepared Statements）
+// sql预处理（Prepared Statements）
 // 对于大部分的数据库来说，当一个query执行的时候，在sql语句数据库内部声明已经声明过了，其声明是在数据库中，我们可以提前进行声明，以便在其他地方重用。
 func ExamplePrepareSelect() {
 	sql := `SELECT * FROM user WHERE uid>?`
@@ -170,23 +171,23 @@ func ExamplePrepareInsert() {
 	fmt.Println("id,", id)
 }
 
-//Query是database/sql中执行查询主要使用的方法，该方法返回row结果。
+// Query是database/sql中执行查询主要使用的方法，该方法返回row结果。
 // Query返回一个sql.Rows对象和一个error对象。
-//在使用的时候应该把Rows当成一个游标而不是一系列的结果。
+// 在使用的时候应该把Rows当成一个游标而不是一系列的结果。
 // 尽管数据库驱动缓存的方法不一样，通过Next()迭代每次获取一列结果，对于查询结果非常巨大的情况下，可以有效的限制内存的使用，
 // Scan()利用reflect把sql每一列结果映射到go语言的数据类型如string，[]byte等。
 // 如果你没有遍历完全部的rows结果，一定要记得在把connection返回到连接池之前调用rows.Close()。
 //
-//Query返回的error有可能是在server准备查询的时候发生的，
+// Query返回的error有可能是在server准备查询的时候发生的，
 // 也有可能是在执行查询语句的时候发生的。
 // 例如可能从连接池中获取一个坏的连级（尽管数据库会尝试10次去发现或创建一个工作连接）。
 // 一般来说，错误主要由错误的sql语句，错误的类似匹配，错误的域名或表名等。
 //
-//在大部分情况下，Rows.Scan()会把从驱动获取的数据进行拷贝，无论驱动如何使用缓存。
+// 在大部分情况下，Rows.Scan()会把从驱动获取的数据进行拷贝，无论驱动如何使用缓存。
 // 特殊类型sql.RawBytes可以用来从驱动返回的数据总获取一个zero-copy的slice byte。
 // 当下一次调用Next的时候，这个值就不在有效了，因为它指向的内存已经被驱动重写了别的数据。
 //
-//Query使用的connection在所有的rows通过Next()遍历完后或者调用rows.Close()后释放。
+// Query使用的connection在所有的rows通过Next()遍历完后或者调用rows.Close()后释放。
 func ExampleQuery() {
 	var (
 		name     string
@@ -248,10 +249,10 @@ func ExampleSelectGet() {
 
 }
 
-//事务操作是通过三个方法实现：
-//Begin()：开启事务
-//Commit()：提交事务（执行sql)
-//Rollback()：回滚
+// 事务操作是通过三个方法实现：
+// Begin()：开启事务
+// Commit()：提交事务（执行sql)
+// Rollback()：回滚
 func ExampleTx() {
 	sql := `insert into user(name,age) values(?,?)`
 	tx, err := Db.Begin()
