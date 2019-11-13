@@ -59,7 +59,7 @@ func WithUsername(user string) Option {
 	}
 }
 
-func WithPwd(pwd string) Option {
+func WithPassword(pwd string) Option {
 	return func(opts *Options) {
 		opts.Password = pwd
 	}
