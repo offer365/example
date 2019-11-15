@@ -56,11 +56,6 @@ type board struct {
 	serial string
 }
 
-type chassis struct {
-	model string
-	vendor string
-}
-
 type bios struct {
 	vendor string
 	version string
@@ -78,8 +73,8 @@ type cpu struct {
 
 type memory struct {
 	model string
-	speed string
-	size string
+	speed uint32
+	size uint64
 }
 
 type disk struct {
@@ -111,7 +106,6 @@ type Hardware interface {
 	Board() *board
 	Product() *product
 	Node() *node
-	Chassis() *chassis
 }
 
 
