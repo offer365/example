@@ -6,6 +6,11 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"net"
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	corec "github.com/offer365/example/grpc/core/client"
 	cores "github.com/offer365/example/grpc/core/server"
@@ -16,10 +21,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	"net"
-	"net/http"
-	"strings"
-	"time"
 )
 
 var token = "666666"
@@ -68,7 +69,7 @@ func gRpcServer() *grpc.Server {
 		cores.WithCa([]byte(cores.Ca_crt)),
 	)
 	fmt.Println(err)
-	proto.RegisterStaterServer(gs,proto.NewNode())
+	proto.RegisterStaterServer(gs, proto.NewNode())
 	return gs
 
 }
@@ -92,13 +93,13 @@ func listener() net.Listener {
 		fmt.Println(ok)
 	}
 	tlsConfig := &tls.Config{
-		Certificates: []tls.Certificate{certificate},
-		ClientAuth:   tls.NoClientCert, // NOTE: 这是可选的!
-		ClientCAs:    certPool,
-		InsecureSkipVerify:true,
-		Rand:rand.Reader,
-		Time:time.Now,
-		NextProtos: []string{"http/1.1", http2.NextProtoTLS},
+		Certificates:       []tls.Certificate{certificate},
+		ClientAuth:         tls.NoClientCert, // NOTE: 这是可选的!
+		ClientCAs:          certPool,
+		InsecureSkipVerify: true,
+		Rand:               rand.Reader,
+		Time:               time.Now,
+		NextProtos:         []string{"http/1.1", http2.NextProtoTLS},
 	}
 	lis, err := tls.Listen("tcp", port, tlsConfig)
 	fmt.Println("err:", err)
@@ -130,7 +131,6 @@ func (a *Authentication) RequireTransportSecurity() bool {
 	return true
 }
 
-
 func client() {
 	auth := &Authentication{
 		User:     token,
@@ -139,7 +139,7 @@ func client() {
 
 	Con, err := corec.NewRpcClient(
 		corec.WithAddr("127.0.0.1"+port),
-		//corec.WithTimeout(8000*time.Millisecond),
+		// corec.WithTimeout(8000*time.Millisecond),
 		corec.WithDialOption(grpc.WithPerRPCCredentials(auth)),
 		corec.WithServerName("server.io"),
 		corec.WithCert([]byte(cores.Client_crt)),
@@ -151,7 +151,7 @@ func client() {
 		return
 	}
 	cli := proto.NewStaterClient(Con)
-	for range time.NewTicker(1*time.Second).C {
+	for range time.NewTicker(1 * time.Second).C {
 		node, err := cli.Status(context.Background(), &proto.Args{Name: "super", Addr: "127.0.0.1:1234"})
 		fmt.Println(node, err)
 	}

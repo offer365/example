@@ -40,8 +40,7 @@ func echo(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
-var _=`
+var _ = `
 任何方法实现了ServeHTTP，即是一个合法的http.Handler，读到这里你可能会有一些混乱，
 我们先来梳理一下http库的Handler，HandlerFunc和ServeHTTP的关系：
 

@@ -13,10 +13,12 @@ type Tweet struct {
 	User    string `json:"user"`
 	Message string `json:"message"`
 }
+
 var host = "http://47.94.99.171:9200/"
+
 func main() {
 	// Create a client
-	client, err := elastic.NewClient(elastic.SetURL(host),elastic.SetSniff(false))
+	client, err := elastic.NewClient(elastic.SetURL(host), elastic.SetSniff(false))
 	if err != nil {
 		// Handle error
 	}
@@ -35,7 +37,7 @@ func main() {
 		Type("doc").
 		Id("1").
 		BodyJson(tweet).
-		Refresh("wait_for").   // 刷新  空字符串或true 表示 立即刷新  wait_for 表示等待自动刷新  false默认值，不刷新
+		Refresh("wait_for"). // 刷新  空字符串或true 表示 立即刷新  wait_for 表示等待自动刷新  false默认值，不刷新
 		Do(context.Background())
 	if err != nil {
 		// Handle error
@@ -45,12 +47,12 @@ func main() {
 	// Search with a term query
 	termQuery := elastic.NewTermQuery("user", "olivere")
 	searchResult, err := client.Search().
-		Index("tweets").            // search in index "tweets"
-		Query(termQuery).           // specify the query
+		Index("tweets"). // search in index "tweets"
+		Query(termQuery). // specify the query
 		Sort("user.keyword", true). // sort by "user" field, ascending
-		From(0).Size(10).           // take documents 0-9
-		Pretty(true).               // pretty print request and response JSON
-		Do(context.Background())    // execute
+		From(0).Size(10). // take documents 0-9
+		Pretty(true). // pretty print request and response JSON
+		Do(context.Background()) // execute
 	if err != nil {
 		// Handle error
 		panic(err)

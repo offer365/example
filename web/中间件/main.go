@@ -9,11 +9,10 @@ import (
 func main() {
 	r := NewRouter()
 	r.Use(logger) // 最外层
-	//r.Use(timeout)
+	// r.Use(timeout)
 	r.Use(timeMiddleware)
 	r.Add("/", http.HandlerFunc(helloHandler))
 }
-
 
 func helloHandler(wr http.ResponseWriter, r *http.Request) {
 	wr.Write([]byte("hello"))
@@ -23,10 +22,10 @@ type middleware func(http.Handler) http.Handler
 
 type Router struct {
 	middlewareChain []middleware
-	mux map[string] http.Handler
+	mux             map[string]http.Handler
 }
 
-func NewRouter() *Router{
+func NewRouter() *Router {
 	return &Router{}
 }
 
@@ -56,7 +55,7 @@ func timeMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func logger(next http.Handler) http.Handler  {
+func logger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(wr http.ResponseWriter, r *http.Request) {
 		fmt.Println(r.RemoteAddr)
 		// next handler

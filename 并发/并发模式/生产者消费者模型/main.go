@@ -8,12 +8,11 @@ import (
 import "fmt"
 
 // 生产者
-func Producer(factor int,out chan<-int)  {
-	for i:=0;;i++{
-		out<-factor*i
+func Producer(factor int, out chan<- int) {
+	for i := 0; ; i++ {
+		out <- factor * i
 	}
 }
-
 
 // 消费者
 func Consumer(in <-chan int) {
@@ -33,5 +32,3 @@ func main() {
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
 	fmt.Printf("quit (%v)\n", <-sig)
 }
-
-

@@ -6,14 +6,15 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 	"log"
 	"net/http"
 	"strings"
 	"time"
+
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 const (
@@ -89,14 +90,13 @@ func genServerTls(crt, key string) (tlsConfig *tls.Config) {
 	return
 }
 
-func genClientTls(crt,servername string) (tlsConfig *tls.Config) {
+func genClientTls(crt, servername string) (tlsConfig *tls.Config) {
 	cp := x509.NewCertPool()
 	if !cp.AppendCertsFromPEM([]byte(crt)) {
 		return nil
 	}
 	return &tls.Config{ServerName: servername, RootCAs: cp}
 }
-
 
 type HelloServiceImpl struct{}
 
@@ -110,13 +110,13 @@ func (p *HelloServiceImpl) Hello(
 
 func main() {
 	go client()
-	time.Sleep(time.Second*1)
+	time.Sleep(time.Second * 1)
 	step3()
 }
 
 func step1() {
 	// gRPC构建在HTTP/2协议之上，因此我们可以将gRPC服务和普通的Web服务架设在同一个端口之上。
-	//对于没有启动TLS协议的服务则需要对HTTP2/2特性做适当的调整：
+	// 对于没有启动TLS协议的服务则需要对HTTP2/2特性做适当的调整：
 	mux := http.NewServeMux()
 	h2Handler := h2c.NewHandler(mux, &http2.Server{})
 	server := &http.Server{Addr: ":3999", Handler: h2Handler}
@@ -169,39 +169,39 @@ func step3() {
 		return
 	})
 
-	//http.ListenAndServeTLS(":1234", "server.crt", "server.key", handle)
+	// http.ListenAndServeTLS(":1234", "server.crt", "server.key", handle)
 
 	l, _ := tls.Listen("tcp", ":1234", tc)
- 	http.Serve(l, handle)
+	http.Serve(l, handle)
 }
 
-func client()  {
+func client() {
 	var tsc credentials.TransportCredentials
 	var err error
-	//tsc, err = credentials.NewClientTLSFromFile(
+	// tsc, err = credentials.NewClientTLSFromFile(
 	//	"server.crt", "server.grpc.io",
-	//)
-	//if err != nil {
+	// )
+	// if err != nil {
 	//	log.Fatal(err)
-	//}
+	// }
 	// 使用内嵌的证书
-	tsc=credentials.NewTLS(genClientTls(server_crt,"server.grpc.io"))
+	tsc = credentials.NewTLS(genClientTls(server_crt, "server.grpc.io"))
 	fmt.Println(tsc)
 	conn, err := grpc.Dial("https://127.0.0.1:1234",
 		grpc.WithTransportCredentials(tsc),
-		//grpc.WithInsecure(),
+		// grpc.WithInsecure(),
 
 	)
 	if err != nil {
-		log.Fatal("....",err)
+		log.Fatal("....", err)
 	}
 	defer conn.Close()
 
 	cli := NewHelloServiceClient(conn)
-	for i:=0;i<10;i++{
+	for i := 0; i < 10; i++ {
 		reply, err := cli.Hello(context.Background(), &String{Value: "hello"})
 		if err != nil {
-			log.Fatal("+++",err)
+			log.Fatal("+++", err)
 		}
 		fmt.Println(reply.GetValue())
 	}

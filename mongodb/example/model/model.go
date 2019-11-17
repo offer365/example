@@ -1,8 +1,9 @@
 package model
 
 import (
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // 产品
@@ -13,9 +14,9 @@ type Product struct {
 	Date         time.Time            `bson:"date" json:"date"`                                   // 发布日期
 	Version      string               `bson:"version" json:"version"`                             // 版本号
 	Introduction string               `bson:"introduction" json:"introduction"`                   // 简介
-	Principal    []primitive.ObjectID `bson:"principal" json:"principal" collection:"principals"` //负责人
+	Principal    []primitive.ObjectID `bson:"principal" json:"principal" collection:"principals"` // 负责人
 	Projects     []primitive.ObjectID `bson:"projects" json:"projects" collection:"projects"`     // 项目
-	Copyright    []primitive.ObjectID `bson:"copyright" json:"copyright" collection:"copyrights"` //软著
+	Copyright    []primitive.ObjectID `bson:"copyright" json:"copyright" collection:"copyrights"` // 软著
 	Files        []primitive.ObjectID `bson:"files" json:"files"`
 }
 
@@ -35,7 +36,7 @@ type Project struct {
 	Number  string             `bson:"number" index:"unique" json:"number"` // 项目编号
 }
 
-//软著
+// 软著
 type Copyright struct {
 	ID          primitive.ObjectID `bson:"_id" json:"id"`
 	Certificate string             `bson:"certificate" index:"unique" json:"certificate"` // 证书号

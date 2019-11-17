@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+
 	"gopkg.in/olivere/elastic.v6"
 )
 

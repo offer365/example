@@ -1,12 +1,12 @@
-syntax="proto3";
+syntax = "proto3";
 
 package main;
 
-message String{
-    string value =1;
+message String {
+    string value = 1;
 }
 
 service PubSubService {
     rpc Publish (String) returns (String);
-    rpc Subscribe(String) returns (stream String);
+    rpc Subscribe (String) returns (stream String);
 }

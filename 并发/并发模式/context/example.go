@@ -34,4 +34,5 @@ func main() {
 
 	wg.Wait()
 }
-//当并发体超时或main主动停止工作者Goroutine时，每个工作者都可以安全退出。
+
+// 当并发体超时或main主动停止工作者Goroutine时，每个工作者都可以安全退出。

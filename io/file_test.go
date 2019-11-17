@@ -6,11 +6,11 @@ import (
 )
 
 func TestReadFileWithLength(t *testing.T) {
-	fmt.Println(ReadWithLength("test.txt",10))
+	fmt.Println(ReadWithLength("test.txt", 10))
 }
 
 func TestLoopReadWithLength(t *testing.T) {
-	fmt.Println(LoopReadWithLength("test.txt",100))
+	fmt.Println(LoopReadWithLength("test.txt", 100))
 }
 
 func TestReadWithLine(t *testing.T) {

@@ -2,41 +2,38 @@ package ssh
 
 import (
 	"fmt"
-	"golang.org/x/crypto/ssh"
 	"io/ioutil"
 	"net"
 	"strings"
+
+	"golang.org/x/crypto/ssh"
 )
 
 type Cli interface {
-	Run(cmd string)(string,error)
+	Run(cmd string) (string, error)
 	Close()
 }
 
-
-
-
 type client struct {
-	cli *ssh.Client
+	cli     *ssh.Client
 	session *ssh.Session
 }
 
-func (c *client)Run(cmd string) (string,error) {
+func (c *client) Run(cmd string) (string, error) {
 
-	byt,err:=c.session.CombinedOutput(cmd)
-	c.session.Stdout=c
-	return string(byt),err
+	byt, err := c.session.CombinedOutput(cmd)
+	c.session.Stdout = c
+	return string(byt), err
 }
 
-func (c *client) Close()  {
+func (c *client) Close() {
 	c.cli.Close()
 	c.session.Close()
 }
-func (c *client)Write(p []byte) (n int, err error)  {
+func (c *client) Write(p []byte) (n int, err error) {
 	fmt.Println(string(p))
-	return len(p),nil
+	return len(p), nil
 }
-
 
 func NewCli(user, pwd, host, port string) Cli {
 	auth := make([]ssh.AuthMethod, 0)
@@ -49,18 +46,15 @@ func NewCli(user, pwd, host, port string) Cli {
 		},
 	}
 	var err error
-	sc:=new(client)
-	sc.cli,err=ssh.Dial("tcp", host+":"+port, config)
-	sc.session,err=sc.cli.NewSession()
+	sc := new(client)
+	sc.cli, err = ssh.Dial("tcp", host+":"+port, config)
+	sc.session, err = sc.cli.NewSession()
 	fmt.Println(err)
 	return sc
 }
 
-
-
-
-func ReadFile(path string) (cmd []string,err error)  {
-	byt,err:=ioutil.ReadFile(path)
-	cmd=strings.Split(string(byt),"\n")
+func ReadFile(path string) (cmd []string, err error) {
+	byt, err := ioutil.ReadFile(path)
+	cmd = strings.Split(string(byt), "\n")
 	return
 }

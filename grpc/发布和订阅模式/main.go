@@ -3,24 +3,25 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/docker/docker/pkg/pubsub"
-	"google.golang.org/grpc"
 	"io"
 	"log"
 	"net"
 	"strings"
 	"time"
+
+	"github.com/docker/docker/pkg/pubsub"
+	"google.golang.org/grpc"
 )
 
 type PubSubService struct {
 	pub *pubsub.Publisher
 }
 
-func NewPubSubService()*PubSubService  {
-	return &PubSubService{pub:pubsub.NewPublisher(1000*time.Millisecond,10)}
+func NewPubSubService() *PubSubService {
+	return &PubSubService{pub: pubsub.NewPublisher(1000*time.Millisecond, 10)}
 }
 
-func (p *PubSubService)Publish(ctx context.Context,arg *String)(*String,error)  {
+func (p *PubSubService) Publish(ctx context.Context, arg *String) (*String, error) {
 	p.pub.Publish(arg.GetValue())
 	return &String{}, nil
 }
@@ -28,7 +29,7 @@ func (p *PubSubService)Publish(ctx context.Context,arg *String)(*String,error)  
 func (p *PubSubService) Subscribe(arg *String, stream PubSubService_SubscribeServer) error {
 	ch := p.pub.SubscribeTopic(func(v interface{}) bool {
 		if key, ok := v.(string); ok {
-			if strings.HasPrefix(key,arg.GetValue()) {
+			if strings.HasPrefix(key, arg.GetValue()) {
 				return true
 			}
 		}
@@ -44,7 +45,6 @@ func (p *PubSubService) Subscribe(arg *String, stream PubSubService_SubscribeSer
 	return nil
 }
 
-
 func main() {
 	go server()
 	go client1()
@@ -53,7 +53,7 @@ func main() {
 	select {}
 }
 
-func server()  {
+func server() {
 	grpcServer := grpc.NewServer()
 	RegisterPubSubServiceServer(grpcServer, NewPubSubService())
 
@@ -65,7 +65,7 @@ func server()  {
 }
 
 // 从客户端向服务器发布信息
-func client1()  {
+func client1() {
 	// grpc.WithInsecure()选项跳过了对服务器证书的验证
 	conn, err := grpc.Dial("localhost:1234", grpc.WithInsecure())
 	if err != nil {
@@ -75,7 +75,7 @@ func client1()  {
 
 	client := NewPubSubServiceClient(conn)
 
-	for range time.NewTicker(time.Millisecond*500).C{
+	for range time.NewTicker(time.Millisecond * 500).C {
 		_, err = client.Publish(
 			context.Background(), &String{Value: "golang: hello Go"},
 		)
@@ -92,7 +92,7 @@ func client1()  {
 	}
 }
 
-//在另一个客户端进行订阅信息
+// 在另一个客户端进行订阅信息
 func client2() {
 	// grpc.WithInsecure()选项跳过了对服务器证书的验证
 	conn, err := grpc.Dial("localhost:1234", grpc.WithInsecure())

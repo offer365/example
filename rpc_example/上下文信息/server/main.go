@@ -29,7 +29,7 @@ func (p *HelloService) Hello(request string, reply *string) error {
 	return nil
 }
 
-//基于上下文我们可以针对不同客户端提供定制化的RPC服务。我们可以通过为每个链接提供独立的RPC服务来实现对上下文特性的支持。
+// 基于上下文我们可以针对不同客户端提供定制化的RPC服务。我们可以通过为每个链接提供独立的RPC服务来实现对上下文特性的支持。
 func main() {
 	listener, err := net.Listen("tcp", ":1234")
 	if err != nil {
@@ -49,6 +49,6 @@ func main() {
 			// 新注册rpc服务
 			p.Register(&HelloService{conn: conn})
 			p.ServeConn(conn)
-		} ()
+		}()
 	}
 }

@@ -97,7 +97,7 @@ func ReadUtil(name string) (str string, err error) {
 }
 
 // 读取压缩文件
-func ReadCompressWithLength(name string,lenght int64) (str string, err error) {
+func ReadCompressWithLength(name string, lenght int64) (str string, err error) {
 	file, err := os.Open(name)
 	if err = check(err); err != nil {
 		return
@@ -107,7 +107,7 @@ func ReadCompressWithLength(name string,lenght int64) (str string, err error) {
 		return
 	}
 	var content []byte
-	buf:=make([]byte,lenght)
+	buf := make([]byte, lenght)
 	for {
 		n, err := gf.Read(buf)
 		if err == io.EOF {

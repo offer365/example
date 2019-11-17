@@ -4,10 +4,11 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 	"io/ioutil"
 	"log"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 const (
@@ -156,14 +157,14 @@ func GetClientCredByBytes(crt, key, ca []byte, servername string) (cred credenti
 }
 
 func GetClientCredByFile(crt, key, ca, servername string) (cred credentials.TransportCredentials, err error) {
-	//eg: certificate, err := tls.LoadX509KeyPair("client.crt", "client.keyFile")
+	// eg: certificate, err := tls.LoadX509KeyPair("client.crt", "client.keyFile")
 	certificate, err := tls.LoadX509KeyPair(crt, key)
 	if err != nil {
 		err = errors.New("failed to load cert and key file. err: " + err.Error())
 	}
 	certPool := x509.NewCertPool()
 	if ca != "" {
-		//eg: ca, err := ioutil.ReadFile("ca.crt")
+		// eg: ca, err := ioutil.ReadFile("ca.crt")
 		byt, err := ioutil.ReadFile(ca)
 		if err != nil {
 			err = errors.New("failed to read ca certs. err: " + err.Error())
@@ -204,12 +205,12 @@ func GetServerCredByBytes(crt, key, ca []byte) (cred credentials.TransportCreden
 
 func GetServerCredByFile(crt, key, ca string) (cred credentials.TransportCredentials, err error) {
 	// 加载证书和密钥 （同时能验证证书与私钥是否匹配）
-	//eg: certificate, err := tls.LoadX509KeyPair("client.crt", "client.key")
+	// eg: certificate, err := tls.LoadX509KeyPair("client.crt", "client.key")
 	certificate, err := tls.LoadX509KeyPair(crt, key)
 	if err != nil {
 		err = errors.New("failed to load cert and key file. err: " + err.Error())
 	}
-	//credentials.NewServerTLSFromCert(&certificate)
+	// credentials.NewServerTLSFromCert(&certificate)
 	// 将根证书加入证书池
 	// 测试证书的根如果不加入可信池，那么测试证书将视为不可惜，无法通过验证。
 	certPool := x509.NewCertPool()
@@ -253,19 +254,19 @@ func NewRpcServer(opts ...Option) (sv *grpc.Server, err error) {
 		err = errors.New("certificate option error")
 		return
 	}
-	op.serverOption = append(op.serverOption,grpc.Creds(cred))
+	op.serverOption = append(op.serverOption, grpc.Creds(cred))
 	sv = grpc.NewServer(op.serverOption...)
 	return
 }
 
 type Options struct {
-	security bool
-	certFile string
-	keyFile  string
-	caFile   string
-	cert     []byte
-	key      []byte
-	ca       []byte
+	security     bool
+	certFile     string
+	keyFile      string
+	caFile       string
+	cert         []byte
+	key          []byte
+	ca           []byte
 	serverOption []grpc.ServerOption
 }
 

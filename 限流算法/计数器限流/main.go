@@ -10,7 +10,7 @@ type CounterLimit struct {
 	counter  int64 // 计数器
 	limit    int64 // 指定时间窗口允许的最大请求数
 	interval int64 // 时间窗口 纳秒
-	unix     int64 //时间戳 纳秒
+	unix     int64 // 时间戳 纳秒
 }
 
 func NewCounterLimit(interval time.Duration, limit int64) *CounterLimit {

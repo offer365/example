@@ -5,10 +5,11 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"google.golang.org/grpc/credentials"
 	"log"
 	"net"
 	"time"
+
+	"google.golang.org/grpc/credentials"
 
 	pb "github.com/offer365/example/grpc/Token认证/proto"
 
@@ -18,7 +19,6 @@ import (
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/metadata" // grpc metadata包
 )
-
 
 const (
 	server_crt = `
@@ -71,7 +71,7 @@ kuVbsDc8rBxFdAXz67m1CnZcE0b3Lrdw5cyb2hRvn/OjzAIQGbggV15/TaH/E21M
 vxrDPZCR+ZwZawJPN8mEL5pRuEa7PNnjA07f3vS/c/X2shWH+ofU
 -----END RSA PRIVATE KEY-----
 `
-	client_crt=`
+	client_crt = `
 -----BEGIN CERTIFICATE-----
 MIIDATCCAekCCQDZPOavuD1IWzANBgkqhkiG9w0BAQsFADBDMQswCQYDVQQGEwJH
 QjEOMAwGA1UEBwwFQ2hpbmExDzANBgNVBAoMBmdvYm9vazETMBEGA1UEAwwKZ2l0
@@ -92,7 +92,7 @@ qZgBbvmwdHHnIK+UU+dhj8ND9gHgR/3E6CNqb0X/rDvdReXX2aMRHh7AURCAQ7Ie
 jXn0cO8=
 -----END CERTIFICATE-----
 `
-	client_key=`
+	client_key = `
 -----BEGIN RSA PRIVATE KEY-----
 MIIEpQIBAAKCAQEAsiMgKALEaxXx+swZq0QS9e1ZfLDvmp11gPRAZLWJHOcoLNu+
 xukHvQ10R4gU0h/ZEPlv9/oTOMWTPyJdiAVdIf/Q5OI/yhwJuKtXnJgRktxRTI++
@@ -121,7 +121,7 @@ h0t6JL0CgYEAyaSvl8uZL/KTP0Y8j7xVDhSqb012tvGcGlyjrQTIjot01k4YL6a5
 FM0t7vikON6MPwPqWYd/gSTpkekjtDRtNoOo+yIluhvV212xlQFKqW4=
 -----END RSA PRIVATE KEY-----
 `
-	ca_crt=`
+	ca_crt = `
 -----BEGIN CERTIFICATE-----
 MIIDWTCCAkGgAwIBAgIJAMDvNtJ7n6vRMA0GCSqGSIb3DQEBCwUAMEMxCzAJBgNV
 BAYTAkdCMQ4wDAYDVQQHDAVDaGluYTEPMA0GA1UECgwGZ29ib29rMRMwEQYDVQQD
@@ -145,7 +145,7 @@ j+PvpuVMUPXfmeX22cNBj6sBZKcqfZhEqoYUZIbUG8Q0/+SVkSUvKhZbBBla
 `
 )
 
-func genServerTls(crt,key string) (tlsConfig *tls.Config){
+func genServerTls(crt, key string) (tlsConfig *tls.Config) {
 	cert, err := tls.X509KeyPair([]byte(crt), []byte(key))
 	fmt.Println(err)
 	tlsConfig = &tls.Config{}
@@ -161,7 +161,7 @@ func genServerTls(crt,key string) (tlsConfig *tls.Config){
 	return
 }
 
-func genClientTls(crt,servername string) (tlsConfig *tls.Config) {
+func genClientTls(crt, servername string) (tlsConfig *tls.Config) {
 	cp := x509.NewCertPool()
 	if !cp.AppendCertsFromPEM([]byte(crt)) {
 		return nil
@@ -169,68 +169,66 @@ func genClientTls(crt,servername string) (tlsConfig *tls.Config) {
 	return &tls.Config{ServerName: servername, RootCAs: cp}
 }
 
-func genClientCreds(crt,key,ca,servername string) credentials.TransportCredentials {
-	//certificate, err := tls.LoadX509KeyPair(crt, key)
-	//eg: certificate, err := tls.LoadX509KeyPair("client.crt", "client.key")
+func genClientCreds(crt, key, ca, servername string) credentials.TransportCredentials {
+	// certificate, err := tls.LoadX509KeyPair(crt, key)
+	// eg: certificate, err := tls.LoadX509KeyPair("client.crt", "client.key")
 
 	// 使用内嵌的证书
-	certificate, err :=tls.X509KeyPair([]byte(crt),[]byte(key))
+	certificate, err := tls.X509KeyPair([]byte(crt), []byte(key))
 	if err != nil {
 		log.Fatal(err)
 	}
 	certPool := x509.NewCertPool()
-	//eg: ca, err := ioutil.ReadFile("ca.crt")
-	//byt, err := ioutil.ReadFile(ca)
-	//if err != nil {
+	// eg: ca, err := ioutil.ReadFile("ca.crt")
+	// byt, err := ioutil.ReadFile(ca)
+	// if err != nil {
 	//	log.Fatal(err)
-	//}
-	byt:=[]byte(ca)
+	// }
+	byt := []byte(ca)
 	// 使用内嵌的证书
 	// eg: if ok := certPool.AppendCertsFromPEM(byt); !ok {
 	if ok := certPool.AppendCertsFromPEM(byt); !ok {
 		log.Fatal("failed to append ca certs")
 	}
 
-	return  credentials.NewTLS(&tls.Config{
-		Certificates:       []tls.Certificate{certificate},
-		ServerName:         servername, // NOTE: 这是必需的!
-		RootCAs:            certPool,
+	return credentials.NewTLS(&tls.Config{
+		Certificates: []tls.Certificate{certificate},
+		ServerName:   servername, // NOTE: 这是必需的!
+		RootCAs:      certPool,
 	})
 }
 
-func genServerCreds(crt,key,ca string) credentials.TransportCredentials {
-	//certificate, err := tls.LoadX509KeyPair(crt, key)
-	//eg: certificate, err := tls.LoadX509KeyPair("client.crt", "client.key")
+func genServerCreds(crt, key, ca string) credentials.TransportCredentials {
+	// certificate, err := tls.LoadX509KeyPair(crt, key)
+	// eg: certificate, err := tls.LoadX509KeyPair("client.crt", "client.key")
 
 	// 使用内嵌的证书
-	certificate, err :=tls.X509KeyPair([]byte(crt),[]byte(key))
+	certificate, err := tls.X509KeyPair([]byte(crt), []byte(key))
 	if err != nil {
 		log.Fatal(err)
 	}
 	certPool := x509.NewCertPool()
-	//byt, err := ioutil.ReadFile(ca)
-	//eg: ca, err := ioutil.ReadFile("ca.crt")
-	//if err != nil {
+	// byt, err := ioutil.ReadFile(ca)
+	// eg: ca, err := ioutil.ReadFile("ca.crt")
+	// if err != nil {
 	//	log.Fatal(err)
-	//}
-	byt:=[]byte(ca)
+	// }
+	byt := []byte(ca)
 	// 使用内嵌的证书
 	// eg: if ok := certPool.AppendCertsFromPEM(byt); !ok {
 	if ok := certPool.AppendCertsFromPEM(byt); !ok {
 		log.Fatal("failed to append ca certs")
 	}
 
-	return  credentials.NewTLS(&tls.Config{
-		Certificates:       []tls.Certificate{certificate},
+	return credentials.NewTLS(&tls.Config{
+		Certificates: []tls.Certificate{certificate},
 		ClientAuth:   tls.RequireAndVerifyClientCert, // NOTE: 这是可选的!
 		ClientCAs:    certPool,
 	})
 }
 
-
 // 定义helloService并实现约定的接口
-type helloService struct { auth *Authentication }
-
+type helloService struct{ auth *Authentication }
 
 // 在gRPC服务端的每个方法中通过Authentication类型的Auth方法进行身份认证：
 func (h *helloService) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloResponse, error) {
@@ -246,9 +244,9 @@ type Authentication struct {
 	Password string
 }
 
-//认证工作主要在Authentication.Auth方法中完成。
+// 认证工作主要在Authentication.Auth方法中完成。
 // 首先通过metadata.FromIncomingContext从ctx上下文中获取元信息，然后取出相应的认证信息进行认证。如果认证失败，则返回一个codes.Unauthenticated类型地错误。
-func (a *Authentication)Auth(ctx context.Context) error {
+func (a *Authentication) Auth(ctx context.Context) error {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return fmt.Errorf("missing credentials")
@@ -257,8 +255,12 @@ func (a *Authentication)Auth(ctx context.Context) error {
 	var user string
 	var pwd string
 
-	if val, ok := md["user"]; ok { user = val[0] }
-	if val, ok := md["password"]; ok { pwd = val[0] }
+	if val, ok := md["user"]; ok {
+		user = val[0]
+	}
+	if val, ok := md["password"]; ok {
+		pwd = val[0]
+	}
 
 	if user != a.User || pwd != a.Password {
 		return grpc.Errorf(codes.Unauthenticated, "invalid token")
@@ -267,9 +269,8 @@ func (a *Authentication)Auth(ctx context.Context) error {
 	return nil
 }
 
-
 func main() {
-	HelloService:=&helloService{auth:&Authentication{
+	HelloService := &helloService{auth: &Authentication{
 		User:     "admin",
 		Password: "666666",
 	}}
@@ -281,20 +282,19 @@ func main() {
 	var opts []grpc.ServerOption
 
 	// TLS认证
-	creds:=genServerCreds(server_crt, server_key,ca_crt)
+	creds := genServerCreds(server_crt, server_key, ca_crt)
 	opts = append(opts, grpc.Creds(creds))
-
 
 	// 注册interceptor  拦截器 类似于中间件
 	// grpc服务端提供了interceptor功能，
 	// 可以在服务端接收到请求时优先对请求中的数据做一些处理后再转交给指定的服务处理并响应，功能类似middleware，很适合在这里处理验证、日志等流程。
 	//
-	//在自定义Token认证的示例中，认证信息是由每个服务中的方法处理并认证的，如果有大量的接口方法，这种姿势就太蛋疼了，每个接口实现都要先处理认证信息。
+	// 在自定义Token认证的示例中，认证信息是由每个服务中的方法处理并认证的，如果有大量的接口方法，这种姿势就太蛋疼了，每个接口实现都要先处理认证信息。
 	// 这个时候interceptor就站出来解决了这个问题，可以在请求被转到具体接口之前处理认证信息
 	// 函数的ctx和req参数就是每个普通的RPC方法的前两个参数。
 	// 第三个info参数表示当前是对应的那个gRPC方法，第四个handler参数对应当前的gRPC方法函数。
 	// 上面的函数中首先是日志输出info参数，然后调用handler对应的gRPC方法函数。
-	//要使用filter截取器函数，只需要在启动gRPC服务时作为参数输入即可：
+	// 要使用filter截取器函数，只需要在启动gRPC服务时作为参数输入即可：
 	var interceptor grpc.UnaryServerInterceptor
 	interceptor = func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 		err = HelloService.auth.Auth(ctx)
@@ -307,8 +307,8 @@ func main() {
 
 	// gRPC框架中只能为每个服务设置一个截取器，因此所有的截取工作只能在一个函数中完成。
 	// 开源的grpc-ecosystem项目中的go-grpc-middleware包已经基于gRPC对截取器实现了链式截取器的支持。
-	//以下是go-grpc-middleware包中链式截取器的简单用法
-	_=`
+	// 以下是go-grpc-middleware包中链式截取器的简单用法
+	_ = `
 	import "github.com/grpc-ecosystem/go-grpc-middleware"
 
 	myServer := grpc.NewServer(

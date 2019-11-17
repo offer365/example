@@ -14,7 +14,6 @@ import (
 
 var host = "http://47.94.99.171:9200/"
 
-
 // Tweet is a structure used for serializing/deserializing data in Elasticsearch.
 type Tweet struct {
 	User     string                `json:"user"`
@@ -72,11 +71,11 @@ func main() {
 	// Obtain a client and connect to the default Elasticsearch installation
 	// on 127.0.0.1:9200. Of course you can configure your client to connect
 	// to other hosts and configure it in various other ways.
-	client, err := elastic.NewClient(elastic.SetErrorLog(elog), elastic.SetURL(host),elastic.SetSniff(false))
+	client, err := elastic.NewClient(elastic.SetErrorLog(elog), elastic.SetURL(host), elastic.SetSniff(false))
 	if err != nil {
 		// Handle error
 		fmt.Println(err)
-		//panic(err)
+		// panic(err)
 	}
 
 	// Ping the Elasticsearch server to get e.g. the version number
@@ -164,12 +163,12 @@ func main() {
 	// Search with a term query
 	termQuery := elastic.NewTermQuery("user", "olivere")
 	searchResult, err := client.Search().
-		Index("twitter").   // search in index "twitter"
-		Query(termQuery).   // specify the query
+		Index("twitter"). // search in index "twitter"
+		Query(termQuery). // specify the query
 		Sort("user", true). // sort by "user" field, ascending
-		From(0).Size(10).   // take documents 0-9
-		Pretty(true).       // pretty print request and response JSON
-		Do(ctx)             // execute
+		From(0).Size(10). // take documents 0-9
+		Pretty(true). // pretty print request and response JSON
+		Do(ctx) // execute
 	if err != nil {
 		// Handle error
 		panic(err)

@@ -27,7 +27,7 @@ type Options struct {
 	Password    string
 	Database    string
 	MaxConn     int // 最大连接数
-	MaxIdleConn int // 最小空闲连接
+	MaxIdleConn int // 最大空闲连接数
 	CharSet     string
 	ParseTime   bool
 }

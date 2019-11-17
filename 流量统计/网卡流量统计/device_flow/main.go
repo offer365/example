@@ -4,19 +4,20 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/google/gopacket"
-	"github.com/google/gopacket/layers"
-	"github.com/google/gopacket/pcap"
 	"log"
 	"net"
 	"os"
 	"time"
+
+	"github.com/google/gopacket"
+	"github.com/google/gopacket/layers"
+	"github.com/google/gopacket/pcap"
 )
 
 var (
-	downStreamDataSize = 0  // 单位时间内下行的总字节数
-	upStreamDataSize   = 0  // 单位时间内上行的总字节数
-	deviceName        = flag.String("i", "eth0", "network interface device name") // 要监控的网卡名称
+	downStreamDataSize = 0                                                         // 单位时间内下行的总字节数
+	upStreamDataSize   = 0                                                         // 单位时间内上行的总字节数
+	deviceName         = flag.String("i", "eth0", "network interface device name") // 要监控的网卡名称
 )
 
 func main() {
@@ -68,7 +69,7 @@ func main() {
 			if ethernet.DstMAC.String() == macAddr {
 				downStreamDataSize += len(packet.Data()) // 统计下行封包总大小
 			} else {
-				upStreamDataSize += len(packet.Data())   // 统计上行封包总大小
+				upStreamDataSize += len(packet.Data()) // 统计上行封包总大小
 			}
 		}
 	}

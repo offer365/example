@@ -2,9 +2,10 @@ package mq
 
 import (
 	"fmt"
-	"github.com/Shopify/sarama"
 	"log"
 	"sync"
+
+	"github.com/Shopify/sarama"
 )
 
 type Producer struct {
@@ -22,7 +23,7 @@ func SyncProducer(host, topic, val string) {
 	config.Producer.Return.Successes = true
 
 	// 使用给定代理地址和配置创建一个同步生产者
-	//producer,err:= sarama.NewSyncProducer([]string{"10.0.0.55:9092"}, config)
+	// producer,err:= sarama.NewSyncProducer([]string{"10.0.0.55:9092"}, config)
 	producer, err := sarama.NewSyncProducer([]string{host}, config)
 	if err != nil {
 		fmt.Println(err)
@@ -33,7 +34,7 @@ func SyncProducer(host, topic, val string) {
 		}
 	}()
 
-	//构建发送的消息，
+	// 构建发送的消息，
 	msg := &sarama.ProducerMessage{
 		Topic: topic,
 		Key:   sarama.StringEncoder("key"), //
@@ -41,12 +42,12 @@ func SyncProducer(host, topic, val string) {
 
 	for {
 		fmt.Println("topic = ", topic, ",value = ", val)
-		//将字符串转换为字节数组
+		// 将字符串转换为字节数组
 		msg.Value = sarama.ByteEncoder(val)
-		//fmt.Println(value)
-		//SendMessage：该方法是生产者生产给定的消息
-		//生产成功的时候返回该消息的分区和所在的偏移量
-		//生产失败的时候返回error
+		// fmt.Println(value)
+		// SendMessage：该方法是生产者生产给定的消息
+		// 生产成功的时候返回该消息的分区和所在的偏移量
+		// 生产失败的时候返回error
 		partition, offset, err := producer.SendMessage(msg)
 
 		if err != nil {
@@ -70,16 +71,16 @@ func Consumer2(host, topic string) {
 			log.Fatalln(err)
 		}
 	}()
-	//Partitions(topic):该方法返回了该topic的所有分区id
+	// Partitions(topic):该方法返回了该topic的所有分区id
 	partitionList, err := consumer.Partitions(topic)
 	if err != nil {
 		panic(err)
 	}
 
 	for partition := range partitionList {
-		//ConsumePartition方法根据主题，分区和给定的偏移量创建创建了相应的分区消费者
-		//如果该分区消费者已经消费了该信息将会返回error
-		//sarama.OffsetNewest:表明了为最新消息
+		// ConsumePartition方法根据主题，分区和给定的偏移量创建创建了相应的分区消费者
+		// 如果该分区消费者已经消费了该信息将会返回error
+		// sarama.OffsetNewest:表明了为最新消息
 		pc, err := consumer.ConsumePartition("test", int32(partition), sarama.OffsetNewest)
 		if err != nil {
 			panic(err)
@@ -88,7 +89,7 @@ func Consumer2(host, topic string) {
 		wg.Add(1)
 		go func(sarama.PartitionConsumer) {
 			defer wg.Done()
-			//Messages()该方法返回一个消费消息类型的只读通道，由代理产生
+			// Messages()该方法返回一个消费消息类型的只读通道，由代理产生
 			for msg := range pc.Messages() {
 				fmt.Printf("%s---Partition:%d, Offset:%d, Key:%s, Value:%s\n", msg.Topic, msg.Partition, msg.Offset, string(msg.Key), string(msg.Value))
 			}

@@ -4,10 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"gopkg.in/olivere/elastic.v5" //这里使用的是版本5，最新的是6，有改动
 	"log"
 	"os"
 	"reflect"
+
+	"gopkg.in/olivere/elastic.v5" // 这里使用的是版本5，最新的是6，有改动
 )
 
 var client *elastic.Client
@@ -21,12 +22,12 @@ type Employee struct {
 	Interests []string `json:"interests"`
 }
 
-//初始化
+// 初始化
 func init() {
 
 	errorlog := log.New(os.Stdout, "APP", log.LstdFlags)
 	var err error
-	client, err = elastic.NewClient(elastic.SetErrorLog(errorlog), elastic.SetURL(host),elastic.SetSniff(false))
+	client, err = elastic.NewClient(elastic.SetErrorLog(errorlog), elastic.SetURL(host), elastic.SetSniff(false))
 	if err != nil {
 		panic(err)
 	}
@@ -46,10 +47,10 @@ func init() {
 
 /*下面是简单的CURD*/
 
-//创建
+// 创建
 func create() {
 
-	//使用结构体
+	// 使用结构体
 	e1 := Employee{"Jane", "Smith", 32, "I like to collect rock albums", []string{"music"}}
 	put1, err := client.Index().
 		Index("megacorp").
@@ -62,7 +63,7 @@ func create() {
 	}
 	fmt.Printf("Indexed tweet %s to index s%s, type %s\n", put1.Id, put1.Index, put1.Type)
 
-	//使用字符串
+	// 使用字符串
 	e2 := `{"first_name":"John","last_name":"Smith","age":25,"about":"I love to go rock climbing","interests":["sports","music"]}`
 	put2, err := client.Index().
 		Index("megacorp").
@@ -89,7 +90,7 @@ func create() {
 
 }
 
-//删除
+// 删除
 func delete() {
 
 	res, err := client.Delete().Index("megacorp").
@@ -103,7 +104,7 @@ func delete() {
 	fmt.Printf("delete result %s\n", res.Result)
 }
 
-//修改
+// 修改
 func update() {
 	res, err := client.Update().
 		Index("megacorp").
@@ -118,9 +119,9 @@ func update() {
 
 }
 
-//查找
+// 查找
 func gets() {
-	//通过id查找
+	// 通过id查找
 	get1, err := client.Get().Index("megacorp").Type("employee").Id("2").Do(context.Background())
 	if err != nil {
 		panic(err)
@@ -130,15 +131,15 @@ func gets() {
 	}
 }
 
-//搜索
+// 搜索
 func query() {
 	var res *elastic.SearchResult
 	var err error
-	//取所有
+	// 取所有
 	res, err = client.Search("megacorp").Type("employee").Do(context.Background())
 	printEmployee(res, err)
 
-	//字段相等
+	// 字段相等
 	q := elastic.NewQueryStringQuery("last_name:Smith")
 	res, err = client.Search("megacorp").Type("employee").Query(q).Do(context.Background())
 	if err != nil {
@@ -152,7 +153,7 @@ func query() {
 		for _, hit := range res.Hits.Hits {
 
 			var t Employee
-			err := json.Unmarshal(*hit.Source, &t) //另外一种取数据的方法
+			err := json.Unmarshal(*hit.Source, &t) // 另外一种取数据的方法
 			if err != nil {
 				fmt.Println("Deserialization failed")
 			}
@@ -163,27 +164,27 @@ func query() {
 		fmt.Printf("Found no Employee \n")
 	}
 
-	//条件查询
-	//年龄大于30岁的
+	// 条件查询
+	// 年龄大于30岁的
 	boolQ := elastic.NewBoolQuery()
 	boolQ.Must(elastic.NewMatchQuery("last_name", "smith"))
 	boolQ.Filter(elastic.NewRangeQuery("age").Gt(30))
 	res, err = client.Search("megacorp").Type("employee").Query(q).Do(context.Background())
 	printEmployee(res, err)
 
-	//短语搜索 搜索about字段中有 rock climbing
+	// 短语搜索 搜索about字段中有 rock climbing
 	matchPhraseQuery := elastic.NewMatchPhraseQuery("about", "rock climbing")
 	res, err = client.Search("megacorp").Type("employee").Query(matchPhraseQuery).Do(context.Background())
 	printEmployee(res, err)
 
-	//分析 interests
+	// 分析 interests
 	aggs := elastic.NewTermsAggregation().Field("interests")
 	res, err = client.Search("megacorp").Type("employee").Aggregation("all_interests", aggs).Do(context.Background())
 	printEmployee(res, err)
 
 }
 
-//简单分页
+// 简单分页
 func list(size, page int) {
 	if size < 0 || page < 1 {
 		fmt.Printf("param error")
@@ -198,14 +199,14 @@ func list(size, page int) {
 
 }
 
-//打印查询到的Employee
+// 打印查询到的Employee
 func printEmployee(res *elastic.SearchResult, err error) {
 	if err != nil {
 		print(err.Error())
 		return
 	}
 	var typ Employee
-	for _, item := range res.Each(reflect.TypeOf(typ)) { //从搜索结果中取数据的方法
+	for _, item := range res.Each(reflect.TypeOf(typ)) { // 从搜索结果中取数据的方法
 		t := item.(Employee)
 		fmt.Printf("%#v\n", t)
 	}
@@ -217,5 +218,5 @@ func main() {
 	update()
 	gets()
 	query()
-	//list()
+	// list()
 }

@@ -41,7 +41,7 @@ func main() {
 			wg.Done()
 		}(pc)
 	}
-	//time.Sleep(time.Hour)
+	// time.Sleep(time.Hour)
 	wg.Wait()
 	consumer.Close()
 }

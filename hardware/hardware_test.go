@@ -1,12 +1,17 @@
 package hardware
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestWindows(t *testing.T) {
-	win:=&windows{}
-	win.Kernel()
-	win.Bios()
-	win.Board()
-	win.Product()
-	win.Cpu()
+	hd:=GetHardware()
+	fmt.Println(hd.Cpu())
+	fmt.Println(hd.Mem())
+	fmt.Println(hd.Bios())
+	fmt.Println(hd.Board())
+	fmt.Println(hd.Product())
+	fmt.Println(hd.Network())
+	fmt.Println(hd.OS())
 }

@@ -2,14 +2,14 @@ package mongodb
 
 import (
 	"context"
-	"go.mongodb.org/mongo-driver/mongo"
 	"io"
 	"strings"
 	"time"
+
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type CallBack func(*mongo.Cursor) error
-
 
 // 数据库
 type DB interface {

@@ -2,8 +2,9 @@ package dao
 
 import (
 	"context"
-	"go.etcd.io/etcd/clientv3"
 	"time"
+
+	"go.etcd.io/etcd/clientv3"
 )
 
 type Options struct {

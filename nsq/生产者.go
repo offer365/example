@@ -3,9 +3,10 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/nsqio/go-nsq"
 	"os"
 	"strings"
+
+	"github.com/nsqio/go-nsq"
 )
 
 var producer *nsq.Producer

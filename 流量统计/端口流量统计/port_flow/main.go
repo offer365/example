@@ -4,15 +4,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/google/gopacket"
-	"github.com/google/gopacket/layers"
-	"github.com/google/gopacket/pcap"
 	"net"
 	"strings"
 	"time"
+
+	"github.com/google/gopacket"
+	"github.com/google/gopacket/layers"
+	"github.com/google/gopacket/pcap"
 )
-var localIP="192.168.10.102"
-var size=0
+
+var localIP = "192.168.10.102"
+var size = 0
 
 func main() {
 	//  获取 libpcap 的版本
@@ -20,17 +22,17 @@ func main() {
 	fmt.Println(version)
 	//  获取网卡列表
 	var device string
-	device=findNetName(localIP)
+	device = findNetName(localIP)
 	fmt.Println(device)
-	hand,err:=pcap.OpenLive(device,int32(999999999),true,-1*time.Second)
+	hand, err := pcap.OpenLive(device, int32(999999999), true, -1*time.Second)
 	fmt.Println(err)
 	hand.SetBPFFilter("port 8080")
 
 	defer hand.Close()
-	//mac,err:=findMacAddrByIp("192.168.10.102")
-	packetSource:=gopacket.NewPacketSource(hand,hand.LinkType())
-	//packet,_:=packetSource.NextPacket()
-	//for packet:=range packetSource.Packets(){
+	// mac,err:=findMacAddrByIp("192.168.10.102")
+	packetSource := gopacket.NewPacketSource(hand, hand.LinkType())
+	// packet,_:=packetSource.NextPacket()
+	// for packet:=range packetSource.Packets(){
 	//	ipLayer := packet.TransportLayer()
 	//	if ipLayer!=nil{
 	//		ipLayer.LayerPayload()
@@ -42,7 +44,7 @@ func main() {
 	//	fmt.Println(packet.String())
 	//	//packet.Data()
 	//	//packet.
-	//}
+	// }
 
 	for packet := range packetSource.Packets() {
 		//  解析 IP 层
@@ -55,8 +57,8 @@ func main() {
 				if len(tcp.Payload) > 0 {
 					ip, _ := ipLayer.(*layers.IPv4)
 
-					if ip.DstIP.String()==localIP&& tcp.DstPort.String()=="8080"{
-						size+=len(tcp.Payload)
+					if ip.DstIP.String() == localIP && tcp.DstPort.String() == "8080" {
+						size += len(tcp.Payload)
 						fmt.Println(size)
 					}
 					fmt.Printf("%s:%s->%s:%s\n%s\n",

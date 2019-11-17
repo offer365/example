@@ -3,12 +3,13 @@ package dao
 import (
 	"context"
 	"errors"
+	"time"
+
 	"github.com/offer365/example/tools"
 	"github.com/offer365/odin/log"
 	"go.etcd.io/etcd/clientv3"
 	"go.etcd.io/etcd/clientv3/concurrency"
 	"go.etcd.io/etcd/mvcc/mvccpb"
-	"time"
 )
 
 // etcd 客户端
@@ -54,7 +55,7 @@ func (es *etcdStore) Close() {
 func (es *etcdStore) Get(key string, lock bool) (resp *clientv3.GetResponse, err error) {
 	var unlock func()
 	if lock {
-		unlock, err = es.lock(tools.Md5sum([]byte(key),nil))
+		unlock, err = es.lock(tools.Md5sum([]byte(key), nil))
 		defer unlock()
 	}
 	ctx, _ := context.WithTimeout(context.Background(), es.timeout)
@@ -64,7 +65,7 @@ func (es *etcdStore) Get(key string, lock bool) (resp *clientv3.GetResponse, err
 func (es *etcdStore) GetAll(prefix string, lock bool) (resp *clientv3.GetResponse, err error) {
 	var unlock func()
 	if lock {
-		unlock, err = es.lock(tools.Md5sum([]byte(prefix),nil))
+		unlock, err = es.lock(tools.Md5sum([]byte(prefix), nil))
 		defer unlock()
 	}
 	ctx, _ := context.WithTimeout(context.Background(), es.timeout)
@@ -74,7 +75,7 @@ func (es *etcdStore) GetAll(prefix string, lock bool) (resp *clientv3.GetRespons
 func (es *etcdStore) Count(prefix string, lock bool) (resp *clientv3.GetResponse, err error) {
 	var unlock func()
 	if lock {
-		unlock, err = es.lock(tools.Md5sum([]byte(prefix),nil))
+		unlock, err = es.lock(tools.Md5sum([]byte(prefix), nil))
 		defer unlock()
 	}
 	ctx, _ := context.WithTimeout(context.Background(), es.timeout)
@@ -84,7 +85,7 @@ func (es *etcdStore) Count(prefix string, lock bool) (resp *clientv3.GetResponse
 func (es *etcdStore) Put(key, val string, lock bool) (resp *clientv3.PutResponse, err error) {
 	var unlock func()
 	if lock {
-		unlock, err = es.lock(tools.Md5sum([]byte(key),nil))
+		unlock, err = es.lock(tools.Md5sum([]byte(key), nil))
 		defer unlock()
 	}
 	ctx, _ := context.WithTimeout(context.Background(), es.timeout)
@@ -94,7 +95,7 @@ func (es *etcdStore) Put(key, val string, lock bool) (resp *clientv3.PutResponse
 func (es *etcdStore) Del(key string, lock bool) (resp *clientv3.DeleteResponse, err error) {
 	var unlock func()
 	if lock {
-		unlock, err = es.lock(tools.Md5sum([]byte(key),nil))
+		unlock, err = es.lock(tools.Md5sum([]byte(key), nil))
 		defer unlock()
 	}
 	ctx, _ := context.WithTimeout(context.Background(), es.timeout)
@@ -104,7 +105,7 @@ func (es *etcdStore) Del(key string, lock bool) (resp *clientv3.DeleteResponse, 
 func (es *etcdStore) DelAll(prefix string, lock bool) (resp *clientv3.DeleteResponse, err error) {
 	var unlock func()
 	if lock {
-		unlock, err = es.lock(tools.Md5sum([]byte(prefix),nil))
+		unlock, err = es.lock(tools.Md5sum([]byte(prefix), nil))
 		defer unlock()
 	}
 	ctx, _ := context.WithTimeout(context.Background(), es.timeout)
@@ -122,7 +123,7 @@ func (es *etcdStore) Lease(key string, ttl int64) (resp *clientv3.LeaseGrantResp
 func (es *etcdStore) PutWithLease(key, val string, leaseId clientv3.LeaseID, lock bool) (resp *clientv3.PutResponse, err error) {
 	var unlock func()
 	if lock {
-		unlock, err = es.lock(tools.Md5sum([]byte(key),nil))
+		unlock, err = es.lock(tools.Md5sum([]byte(key), nil))
 		defer unlock()
 	}
 	ctx, _ := context.WithTimeout(context.Background(), es.timeout)
@@ -132,7 +133,7 @@ func (es *etcdStore) PutWithLease(key, val string, leaseId clientv3.LeaseID, loc
 func (es *etcdStore) DelWithLease(key string, leaseId clientv3.LeaseID, lock bool) (resp *clientv3.DeleteResponse, err error) {
 	var unlock func()
 	if lock {
-		unlock, err = es.lock(tools.Md5sum([]byte(key),nil))
+		unlock, err = es.lock(tools.Md5sum([]byte(key), nil))
 		defer unlock()
 	}
 	if _, err := es.lease.Revoke(context.TODO(), leaseId); err != nil {
@@ -179,7 +180,7 @@ func (es *etcdStore) Watch(ctx context.Context, key string, putFunc EventFunc, d
 		err             error
 	)
 
-	//这里不能用 context.WithTimeout 超时会导致watch退出。
+	// 这里不能用 context.WithTimeout 超时会导致watch退出。
 	watcherRespChan = es.watcher.Watch(ctx, key)
 	// 处理kv变化事件
 	for watcherResp = range watcherRespChan {
@@ -201,14 +202,14 @@ func (es *etcdStore) Watch(ctx context.Context, key string, putFunc EventFunc, d
 // 锁
 func (es *etcdStore) lock(name string) (func(), error) {
 	// 创建一个10s的租约(lease)
-	//res, err := eh.client.Grant(context.Background(), 10)
-	//if err != nil {
+	// res, err := eh.client.Grant(context.Background(), 10)
+	// if err != nil {
 	//	log.Error("lock get grant error. ", err)
 	//	return nil, err
-	//}
-	//ctx,cancel:=context.WithTimeout(context.TODO(),eh.wait*2)
+	// }
+	// ctx,cancel:=context.WithTimeout(context.TODO(),eh.wait*2)
 	// 利用上面创建的租约ID创建一个session
-	//session, err := concurrency.NewSession(eh.client, concurrency.WithLease(res.name),concurrency.WithContext(ctx))
+	// session, err := concurrency.NewSession(eh.client, concurrency.WithLease(res.name),concurrency.WithContext(ctx))
 	session, err := concurrency.NewSession(es.client)
 	if err != nil {
 		log.Sugar.Error("create lock new session failed. error: ", err)
@@ -217,7 +218,7 @@ func (es *etcdStore) lock(name string) (func(), error) {
 	mutex := concurrency.NewMutex(session, name)
 	ctx, cancel := context.WithTimeout(context.Background(), es.timeout)
 	defer cancel()
-	//ctx:=context.Background()
+	// ctx:=context.Background()
 
 	if err = mutex.Lock(ctx); err != nil {
 		mutex.Unlock(ctx)
@@ -234,5 +235,3 @@ func (es *etcdStore) lock(name string) (func(), error) {
 	}
 	return unlock, nil
 }
-
-

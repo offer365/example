@@ -24,4 +24,5 @@ func main() {
 
 	fmt.Println(reply)
 }
+
 // echo -e '{"method":"HelloService.Hello","params":["hello"],"id":1}' | nc localhost 1234

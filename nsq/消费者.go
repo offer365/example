@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/nsqio/go-nsq"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/nsqio/go-nsq"
 )
 
 type Consumer struct{}

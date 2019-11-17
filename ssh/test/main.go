@@ -6,22 +6,24 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/go-sql-driver/mysql"
-	"golang.org/x/crypto/ssh"
 	"io"
 	"io/ioutil"
 	"net"
 	"os"
+
+	"github.com/go-sql-driver/mysql"
+	"golang.org/x/crypto/ssh"
 )
 
 type ViaSSHDialer struct {
 	client *ssh.Client
-	_ *context.Context
+	_      *context.Context
 }
 
 func (self *ViaSSHDialer) Dial(addr string) (net.Conn, error) {
 	return self.client.Dial("tcp", addr)
 }
+
 type remoteScriptType byte
 type remoteShellType byte
 
@@ -37,6 +39,7 @@ const (
 type Client struct {
 	client *ssh.Client
 }
+
 func main() {
 	client, err := DialWithPasswd("10.0.0.250:22", "root", "666666")
 	if err != nil {
@@ -53,10 +56,10 @@ func main() {
 	}
 	fmt.Println(string(out))
 	// Now we register the ViaSSHDialer with the ssh connection as a parameter
-	//mysql.RegisterDialContext("mysql+tcp", (&ViaSSHDialer{client.client,nil}).Dial)
-	mysql.RegisterDial("mysql+tcp", (&ViaSSHDialer{client.client,nil}).Dial)
-	//mysql.RegisterDial("mysql+tcp", (&ViaSSHDialer{client.client}).Dial)
-	if db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@mysql+tcp(%s)/%s","Aiqitest", "uf6amk146d2aoemi7", "139.196.174.234:3306", "Aiqitest"));
+	// mysql.RegisterDialContext("mysql+tcp", (&ViaSSHDialer{client.client,nil}).Dial)
+	mysql.RegisterDial("mysql+tcp", (&ViaSSHDialer{client.client, nil}).Dial)
+	// mysql.RegisterDial("mysql+tcp", (&ViaSSHDialer{client.client}).Dial)
+	if db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@mysql+tcp(%s)/%s", "Aiqitest", "uf6amk146d2aoemi7", "139.196.174.234:3306", "Aiqitest"));
 		err == nil {
 		fmt.Printf("Successfully connected to the db\n")
 		if rows, err := db.Query("SELECT id, name FROM table ORDER BY id"); err == nil {
@@ -409,4 +412,3 @@ func (rs *remoteShell) Start() error {
 
 	return nil
 }
-

@@ -4,16 +4,18 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
+
 	"github.com/olivere/elastic"
 	"odin.ren/endecrypt"
 	"odin.ren/endecrypt/endeaesrsa"
 	"odin.ren/hardware"
-	"strconv"
 )
 
 var rank_code = `mVT7iVjK2gHrMV7awKUXjATP4KXDlm4VODkKwbyNyzDRAR5Hfv3/6rUSpsthkvzStFHUVKndyLFyhFflEvu1NZ1N3TcEhXlYxWG0D8YdBEzL22cLJ+vveR4jG1gN1dYVR0/PSZEC9HADuSOx1RGIpj7p7QcFZHrIRXUV0hzLKV5iv0VsQtlUaKEBl/DHXoCzV4fAW8Oz8684QFQuAWaJ/hTVVeOq0EKRty2XSM0uQQROB6kKjnc120L/o6Wm+N2Hkifdp1pyTM4nseNxnQGGa/Ij5tr3u9m0/qbzyDTYZBPwaDH3M0eiynqONyHRfMPKSxFpe97fjfmforTjNs3qWqgxBErirS6lyl7neH/85c5n41qDqFdIVdu8ZrEeXjZdEr2puRM63Xx4tVnrqt9xZZL34CTjRpRHlvN/zLqbUeOdxZ2RrqxJ5BKWMsBrLt5qxCF0ap9LfQV/apAv1QokJs/PKC5wYiaZJtN3wCNoq7rcpMo379+R/iJDCns3JkGi3rNoiKSHLjXVZAYkIckdFlOB/u/xjTMj4rNO0X7c97t1TRua5N87xvShrFIRHGZ3AMQ+zxEkcR0vbwRsRM5WGAsZxgl0m/4iLKE/96bGtLhMT/T2Nb1fS2ggwJt61kpu8SbHiUv8fTGGp4lK8Eyuz60yIcaxw21OdhY9aXKMrex57agC+8tZLWufCNSZVUUiuXYDdlVOLnxnSKarw5vsuD80sYbFP3Vj8IvXbJt0SLFX1TYYDwZTbRBqJafToIsPCesAbEDJqaVQcuwpxGDdGk9Tf/MoQpDCytQSrgTQXnLaaa5BI3yucbswF05d36ME7waEUV7v+Fxo9lgF6Nv1nhDBpLfS02S9/6WtfHfNH04mrhnvzybgeE49NNEs6ziFvTA2E7wg+4oc1eqBcqhfXLnfWs0UEaAYwkYKVu6Zn5ZMPSvlIW/cYyQ1L6WKUIlSICu7EqgY6jtIYlQLn0zRCZ5jVkYNveLs/ftt7qCkZ6KS75y2gbccVKUOkrMqUwvFDJwyQnhKsJ1SEmVObea+cA==`
-var index ="asgard"
+var index = "asgard"
 var typ = "rank_code"
+
 // 授权
 type License struct {
 	Lid          string  `json:"lid"`            // 授权码唯一uuid,用来甄别是否重复授权。
@@ -160,7 +162,7 @@ func (E *ESC) CreateIndex() {
 	if !exists {
 		// Create a new index.
 		createIndex, err := E.Client.CreateIndex(index).BodyString(mapping).Do(ctx)
-		//createIndex, err := E.Client.CreateIndex(index).Do(ctx)
+		// createIndex, err := E.Client.CreateIndex(index).Do(ctx)
 		if err != nil {
 			// Handle error
 			panic(err)
@@ -173,13 +175,13 @@ func (E *ESC) CreateIndex() {
 
 func (E *ESC) Create(id string, r *RankCode) (err error) {
 	res, err := E.Client.Index().Index(index).Type(typ).Id(id).BodyJson(r).Do(context.Background())
-	res=res
+	res = res
 	return
 }
 
 func (E *ESC) Get(id string) (err error) {
 	res, err := E.Client.Get().Index(index).Type(typ).Id(id).Do(context.Background())
-	res=res
+	res = res
 	return
 }
 
@@ -200,12 +202,12 @@ func (E *ESC) Search() (err error) {
 
 		for _, hit := range res.Hits.Hits {
 
-			var rc  RankCode
-			err := json.Unmarshal(*hit.Source, &rc) //另外一种取数据的方法
+			var rc RankCode
+			err := json.Unmarshal(*hit.Source, &rc) // 另外一种取数据的方法
 			if err != nil {
 				fmt.Println("Deserialization failed")
 			}
-			fmt.Printf("%+v\n",rc)
+			fmt.Printf("%+v\n", rc)
 		}
 	} else {
 		fmt.Printf("Found no Employee \n")
@@ -213,7 +215,7 @@ func (E *ESC) Search() (err error) {
 	return
 }
 
-func (E *ESC) Update()(err error) {
+func (E *ESC) Update() (err error) {
 	update, err := E.Client.Update().Index("twitter").Type("tweet").Id("1").
 		Script(elastic.NewScriptInline("ctx._source.retweets += params.num").Lang("painless").Param("num", 1)).
 		Upsert(map[string]interface{}{"retweets": 0}).
@@ -234,8 +236,8 @@ func (E *ESC) Delete() (err error) {
 	return
 }
 
-////修改
-//func update() {
+// //修改
+// func update() {
 //	res, err := client.Update().
 //		Index("megacorp").
 //		Type("employee").
@@ -247,10 +249,10 @@ func (E *ESC) Delete() (err error) {
 //	}
 //	fmt.Printf("update age %s\n", res.Result)
 //
-//}
+// }
 //
-////查找
-//func gets() {
+// //查找
+// func gets() {
 //	//通过id查找
 //	get1, err := client.Get().Index("megacorp").Type("employee").Id("2").Do(context.Background())
 //	if err != nil {
@@ -259,10 +261,10 @@ func (E *ESC) Delete() (err error) {
 //	if get1.Found {
 //		fmt.Printf("Got document %s in version %d from index %s, type %s\n", get1.Id, get1.Version, get1.Index, get1.Type)
 //	}
-//}
+// }
 //
-////搜索
-//func query() {
+// //搜索
+// func query() {
 //	var res *elastic.SearchResult
 //	var err error
 //	//取所有
@@ -312,10 +314,10 @@ func (E *ESC) Delete() (err error) {
 //	res, err = client.Search("megacorp").Type("employee").Aggregation("all_interests", aggs).Do(context.Background())
 //	printEmployee(res, err)
 //
-//}
+// }
 //
-////简单分页
-//func list(size, page int) {
+// //简单分页
+// func list(size, page int) {
 //	if size < 0 || page < 1 {
 //		fmt.Printf("param error")
 //		return
@@ -327,10 +329,10 @@ func (E *ESC) Delete() (err error) {
 //		Do(context.Background())
 //	printEmployee(res, err)
 //
-//}
+// }
 //
-////打印查询到的Employee
-//func printEmployee(res *elastic.SearchResult, err error) {
+// //打印查询到的Employee
+// func printEmployee(res *elastic.SearchResult, err error) {
 //	if err != nil {
 //		print(err.Error())
 //		return
@@ -340,7 +342,7 @@ func (E *ESC) Delete() (err error) {
 //		t := item.(Employee)
 //		fmt.Printf("%#v\n", t)
 //	}
-//}
+// }
 
 func main() {
 	var Host = "http://10.0.0.220:9200"
@@ -348,7 +350,7 @@ func main() {
 	fmt.Println(err)
 	esc.CreateIndex()
 	rc, err := Decrypt(rank_code)
-	//fmt.Println(rc)
+	// fmt.Println(rc)
 	for i := 0; i < 10; i++ {
 		esc.Create(strconv.Itoa(i), rc)
 	}

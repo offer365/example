@@ -1,13 +1,14 @@
-package redis
+package redisx
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gomodule/redigo/redis"
 	"math/rand"
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/gomodule/redigo/redis"
 )
 
 var conn redis.Conn
@@ -21,14 +22,14 @@ func TestNewCache(t *testing.T) {
 	defer conn.Close()
 	// 文档  https://godoc.org/github.com/gomodule/redigo/redis#pkg-examples
 	// 命令  http://redisdoc.com
-	//ExampleKV()
-	//ExampleList()
-	//ExampleHash()
+	// ExampleKV()
+	// ExampleList()
+	// ExampleHash()
 	ExampleJson()
 	ExampleMulti()
-	//ExampleExpire()
-	//ExamplePip()
-	//ExamplePublish()
+	// ExampleExpire()
+	// ExamplePip()
+	// ExamplePublish()
 }
 
 // 普通的键值操作
@@ -58,9 +59,9 @@ func ExampleKV() {
 		fmt.Println(val, err)
 	}
 
-	//批量写入读取
-	//MGET key [key …]
-	//MSET key value [key value …]
+	// 批量写入读取
+	// MGET key [key …]
+	// MSET key value [key value …]
 	// mset 同时设置多个键值对
 	_, err = conn.Do("MSet", "aa", 102, "bb", 103, "cc", 104)
 	if err != nil {
@@ -133,9 +134,9 @@ func ExampleHash() {
 	r, err := redis.Int(conn.Do("HGet", "hash1", "a"))
 	fmt.Println(r)
 
-	//批量写入读取对象(Hashtable)
-	//HMSET key field value [field value …]
-	//HMGET key field [field …]
+	// 批量写入读取对象(Hashtable)
+	// HMSET key field value [field value …]
+	// HMGET key field [field …]
 	_, err = conn.Do("HMSet", "hash1", "a", 101, "b", 101, "c", 102, "d", 103)
 	if err != nil {
 		fmt.Println("hset error,", err)
@@ -188,9 +189,9 @@ func ExampleExpire() {
 
 // 管道
 func ExamplePip() {
-	conn.Send("set", "name", "lisi") //将命令写入缓冲区。
+	conn.Send("set", "name", "lisi") // 将命令写入缓冲区。
 	conn.Send("get", "name")
-	conn.Flush()                              //将缓冲区的内容刷新到服务器。
+	conn.Flush()                              // 将缓冲区的内容刷新到服务器。
 	fmt.Println(redis.String(conn.Receive())) // 从服务器读取单个答复
 	fmt.Println(redis.String(conn.Receive()))
 
@@ -202,16 +203,16 @@ func ExamplePip() {
 	fmt.Println(r, err) // prints [1, 1]
 }
 
-//事务
+// 事务
 func ExampleMulti() {
 
-	//MULTI：开启事务
+	// MULTI：开启事务
 	//
-	//EXEC：执行事务
+	// EXEC：执行事务
 	//
-	//DISCARD：取消事务
+	// DISCARD：取消事务
 	//
-	//WATCH：监视事务中的键变化，一旦有改变则取消事务。
+	// WATCH：监视事务中的键变化，一旦有改变则取消事务。
 
 	// 流水线事务
 	conn.Send("MULTI")
@@ -227,7 +228,7 @@ func ExampleSubscribe() {
 	defer c.Close()
 	psc := redis.PubSubConn{c}
 	psc.Subscribe("redChatRoom")
-	//psc.Unsubscribe("redChatRoom")  // 退订
+	// psc.Unsubscribe("redChatRoom")  // 退订
 	for {
 		switch v := psc.Receive().(type) {
 		case redis.Message: // 接受到的信息

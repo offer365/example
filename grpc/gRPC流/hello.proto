@@ -1,14 +1,14 @@
-syntax="proto3";
+syntax = "proto3";
 
 package main;
 
 message String {
-    string value =1;
+    string value = 1;
 }
 
 service HelloService {
     rpc Hello (String) returns (String);
     // 增加一个支持双向流的Channel方法
     // 关键字stream指定启用流特性，参数部分是接收客户端参数的流，返回值是返回给客户端的流。
-    rpc Channel(stream String) returns (stream String);
+    rpc Channel (stream String) returns (stream String);
 }

@@ -5,14 +5,13 @@ import (
 	"net/rpc"
 )
 
-func main()  {
+func main() {
 	client, err := rpc.Dial("tcp", "127.0.0.1:1234")
 	if err != nil {
 		fmt.Println("dialing:", err)
 	}
 
-	var reply =""
-
+	var reply = ""
 
 	err = client.Call("HelloService.Login", "user:password", &reply)
 	if err != nil {
@@ -27,4 +26,3 @@ func main()  {
 	fmt.Println(reply)
 
 }
-

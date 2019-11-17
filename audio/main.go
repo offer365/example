@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/nareix/joy4/av"
-	"github.com/nareix/joy4/format"
 	"github.com/nareix/joy4/av/avutil"
 	"github.com/nareix/joy4/cgo/ffmpeg"
+	"github.com/nareix/joy4/format"
 )
 
 // need ffmpeg installed

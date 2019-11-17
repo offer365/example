@@ -1,4 +1,4 @@
-package redis
+package redisx
 
 import (
 	"strings"
@@ -72,7 +72,7 @@ type Cache interface {
 func NewCache(driver string) Cache {
 	switch strings.ToLower(driver) {
 	case "redis":
-		return new(RedisCli)
+		return new(redisCli)
 	}
 	return nil
 }

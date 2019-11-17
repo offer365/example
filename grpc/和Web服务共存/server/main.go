@@ -27,13 +27,13 @@ const PORT = "9003"
 
 func main() {
 	var err error
-	helloServer:=new(HelloServiceImpl)
+	helloServer := new(HelloServiceImpl)
 	mux := GetHTTPServeMux()
 
-	server,err := cs.NewRpcServer(
+	server, err := cs.NewRpcServer(
 		cs.WithCertFile(`C:\Users\Administrator\go\src\github.com\offer365\example\grpc\core\cert\server.crt`),
 		cs.WithKeyFile(`C:\Users\Administrator\go\src\github.com\offer365\example\grpc\core\cert\server.key`),
-		cs.WithCaFile(`C:\Users\Administrator\go\src\github.com\offer365\example\grpc\core\cert\ca.crt`),)
+		cs.WithCaFile(`C:\Users\Administrator\go\src\github.com\offer365\example\grpc\core\cert\ca.crt`), )
 	fmt.Println(err)
 	pb.RegisterHelloServiceServer(server, helloServer)
 

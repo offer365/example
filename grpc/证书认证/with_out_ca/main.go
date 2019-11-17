@@ -1,17 +1,17 @@
 package main
 
-
 import (
 	"context"
 	"crypto/rand"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 	"log"
 	"net"
 	"time"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 const (
@@ -71,7 +71,7 @@ B1rikLP7ogmVRRQtLDfIhQZmvF1VGVInivxsoOjzkLdEwTu0twxiqxc=
 `
 )
 
-func genServerTls(crt,key string) (tlsConfig *tls.Config){
+func genServerTls(crt, key string) (tlsConfig *tls.Config) {
 	cert, err := tls.X509KeyPair([]byte(crt), []byte(key))
 	fmt.Println(err)
 	tlsConfig = &tls.Config{}
@@ -87,7 +87,7 @@ func genServerTls(crt,key string) (tlsConfig *tls.Config){
 	return
 }
 
-func genClientTls(crt,servername string) (tlsConfig *tls.Config) {
+func genClientTls(crt, servername string) (tlsConfig *tls.Config) {
 	cp := x509.NewCertPool()
 	if !cp.AppendCertsFromPEM([]byte(crt)) {
 		return nil
@@ -109,13 +109,12 @@ func main() {
 	go client()
 	var tsc credentials.TransportCredentials
 	var err error
-	tsc,err=credentials.NewServerTLSFromFile("server.crt", "server.key")
+	tsc, err = credentials.NewServerTLSFromFile("server.crt", "server.key")
 	fmt.Println(err)
 
 	// 使用内嵌的证书
-	_=credentials.NewTLS(genServerTls(server_crt,server_key))
+	_ = credentials.NewTLS(genServerTls(server_crt, server_key))
 	grpcServer := grpc.NewServer(grpc.Creds(tsc))
-
 
 	RegisterHelloServiceServer(grpcServer, new(HelloServiceImpl))
 
@@ -127,10 +126,10 @@ func main() {
 
 }
 
-//这种方式，需要提前将服务器的证书告知客户端，这样客户端在链接服务器时才能进行对服务器证书认证。
+// 这种方式，需要提前将服务器的证书告知客户端，这样客户端在链接服务器时才能进行对服务器证书认证。
 // 在复杂的网络环境中，服务器证书的传输本身也是一个非常危险的问题。
 // 如果在中间某个环节，服务器证书被监听或替换那么对服务器的认证也将不再可靠。
-func client()  {
+func client() {
 	var tsc credentials.TransportCredentials
 	var err error
 	tsc, err = credentials.NewClientTLSFromFile(
@@ -140,7 +139,7 @@ func client()  {
 		log.Fatal(err)
 	}
 	// 使用内嵌的证书
-	credentials.NewTLS(genClientTls(server_crt,"server.grpc.io"))
+	credentials.NewTLS(genClientTls(server_crt, "server.grpc.io"))
 
 	conn, err := grpc.Dial("localhost:1234",
 		grpc.WithTransportCredentials(tsc),
@@ -151,15 +150,12 @@ func client()  {
 	defer conn.Close()
 
 	cli := NewHelloServiceClient(conn)
-	for i:=0;i<10;i++{
+	for i := 0; i < 10; i++ {
 		reply, err := cli.Hello(context.Background(), &String{Value: "hello"})
 		if err != nil {
 			log.Fatal(err)
 		}
 		fmt.Println(reply.GetValue())
 	}
-
-
-
 
 }

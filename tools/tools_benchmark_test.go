@@ -2,9 +2,8 @@ package tools
 
 import "testing"
 
-
 // go test -test.bench=.
-var byt=[]byte("hello world")
+var byt = []byte("hello world")
 
 func BenchmarkMd5Hash(b *testing.B) {
 	for i := 0; i < b.N; i++ {
@@ -32,13 +31,13 @@ func BenchmarkMurmurHash64(b *testing.B) {
 
 func BenchmarkAbs(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		Abs(50-100)
+		Abs(50 - 100)
 	}
 }
 
 func BenchmarkAbs2(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		Abs2(50-100)
+		Abs2(50 - 100)
 	}
 }
 
@@ -62,6 +61,6 @@ func BenchmarkMurmur128(b *testing.B) {
 
 func BenchmarkScrypt(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		Scrypt([]byte("hehehehehehehehehehehehehehehehehehehehehehe"),[]byte("123123123123123"))
+		Scrypt([]byte("hehehehehehehehehehehehehehehehehehehehehehe"), []byte("123123123123123"))
 	}
 }

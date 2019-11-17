@@ -1,15 +1,16 @@
 package logic
 
 import (
-	"../model"
 	"context"
 	"encoding/json"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 	"io"
 	"io/ioutil"
 	"time"
+
+	"../model"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type product struct {
@@ -40,9 +41,9 @@ type show struct {
 
 func Aggregation(coll string, id string, skip, limit int64) (data interface{}, err error) {
 	var pipe mongo.Pipeline
-	//{"$limit",limit},
-	//{"$skip",skip},
-	//{"$sort",-1},
+	// {"$limit",limit},
+	// {"$skip",skip},
+	// {"$sort",-1},
 	if id != "" {
 		if oid, err := primitive.ObjectIDFromHex(id); err == nil {
 			o1 := bson.D{
@@ -87,7 +88,7 @@ func Aggregation(coll string, id string, skip, limit int64) (data interface{}, e
 	pipe = append(pipe, o5)
 	pipe = append(pipe, bson.D{{"$limit", limit}})
 	pipe = append(pipe, bson.D{{"$skip", skip}})
-	//pipe=append(pipe,bson.D{{"$sort",-1}})
+	// pipe=append(pipe,bson.D{{"$sort",-1}})
 
 	instances := make([]*product, 0)
 	fu := func(cursor *mongo.Cursor) (err error) {

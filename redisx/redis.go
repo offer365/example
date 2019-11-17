@@ -1,17 +1,18 @@
-package redis
+package redisx
 
 import (
-	"github.com/gomodule/redigo/redis"
 	"time"
+
+	"github.com/gomodule/redigo/redis"
 )
 
-type RedisCli struct {
+type redisCli struct {
 	host    string
 	pool    *redis.Pool
 	options *Options
 }
 
-func (rc *RedisCli) Init(opts ...Option) {
+func (rc *redisCli) Init(opts ...Option) {
 	rc.options = DefaultOpts()
 	for _, opt := range opts {
 		opt(rc.options)
@@ -46,6 +47,6 @@ func (rc *RedisCli) Init(opts ...Option) {
 	}
 }
 
-func (rc *RedisCli) Conn() redis.Conn {
+func (rc *redisCli) Conn() redis.Conn {
 	return rc.pool.Get()
 }

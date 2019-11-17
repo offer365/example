@@ -14,9 +14,9 @@ func TestNewEmbed(t *testing.T) {
 		WithDir("../disk"),
 		WithClientAddr("127.0.0.1:12379"),
 		WithPeerAddr("127.0.0.1:12380"),
-		WithCluster(map[string]string{"default":"127.0.0.1:12380"}),
+		WithCluster(map[string]string{"default": "127.0.0.1:12380"}),
 		WithClusterState("new"))
-	//err := embed.Init(context.Background())
+	// err := embed.Init(context.Background())
 	fmt.Println(err)
 	t.Error(err)
 	ready := make(chan struct{})

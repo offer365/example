@@ -6,11 +6,12 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 	"log"
 	"net"
 	"time"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 const (
@@ -64,7 +65,7 @@ kuVbsDc8rBxFdAXz67m1CnZcE0b3Lrdw5cyb2hRvn/OjzAIQGbggV15/TaH/E21M
 vxrDPZCR+ZwZawJPN8mEL5pRuEa7PNnjA07f3vS/c/X2shWH+ofU
 -----END RSA PRIVATE KEY-----
 `
-	client_crt=`
+	client_crt = `
 -----BEGIN CERTIFICATE-----
 MIIDATCCAekCCQDZPOavuD1IWzANBgkqhkiG9w0BAQsFADBDMQswCQYDVQQGEwJH
 QjEOMAwGA1UEBwwFQ2hpbmExDzANBgNVBAoMBmdvYm9vazETMBEGA1UEAwwKZ2l0
@@ -85,7 +86,7 @@ qZgBbvmwdHHnIK+UU+dhj8ND9gHgR/3E6CNqb0X/rDvdReXX2aMRHh7AURCAQ7Ie
 jXn0cO8=
 -----END CERTIFICATE-----
 `
-	client_key=`
+	client_key = `
 -----BEGIN RSA PRIVATE KEY-----
 MIIEpQIBAAKCAQEAsiMgKALEaxXx+swZq0QS9e1ZfLDvmp11gPRAZLWJHOcoLNu+
 xukHvQ10R4gU0h/ZEPlv9/oTOMWTPyJdiAVdIf/Q5OI/yhwJuKtXnJgRktxRTI++
@@ -114,7 +115,7 @@ h0t6JL0CgYEAyaSvl8uZL/KTP0Y8j7xVDhSqb012tvGcGlyjrQTIjot01k4YL6a5
 FM0t7vikON6MPwPqWYd/gSTpkekjtDRtNoOo+yIluhvV212xlQFKqW4=
 -----END RSA PRIVATE KEY-----
 `
-	ca_crt=`
+	ca_crt = `
 -----BEGIN CERTIFICATE-----
 MIIDWTCCAkGgAwIBAgIJAMDvNtJ7n6vRMA0GCSqGSIb3DQEBCwUAMEMxCzAJBgNV
 BAYTAkdCMQ4wDAYDVQQHDAVDaGluYTEPMA0GA1UECgwGZ29ib29rMRMwEQYDVQQD
@@ -138,7 +139,7 @@ j+PvpuVMUPXfmeX22cNBj6sBZKcqfZhEqoYUZIbUG8Q0/+SVkSUvKhZbBBla
 `
 )
 
-func genServerTls(crt,key string) (tlsConfig *tls.Config){
+func genServerTls(crt, key string) (tlsConfig *tls.Config) {
 	cert, err := tls.X509KeyPair([]byte(crt), []byte(key))
 	fmt.Println(err)
 	tlsConfig = &tls.Config{}
@@ -154,7 +155,7 @@ func genServerTls(crt,key string) (tlsConfig *tls.Config){
 	return
 }
 
-func genClientTls(crt,servername string) (tlsConfig *tls.Config) {
+func genClientTls(crt, servername string) (tlsConfig *tls.Config) {
 	cp := x509.NewCertPool()
 	if !cp.AppendCertsFromPEM([]byte(crt)) {
 		return nil
@@ -162,64 +163,63 @@ func genClientTls(crt,servername string) (tlsConfig *tls.Config) {
 	return &tls.Config{ServerName: servername, RootCAs: cp}
 }
 
-func genClientCreds(crt,key,ca,servername string) credentials.TransportCredentials {
-	//certificate, err := tls.LoadX509KeyPair(crt, key)
-	//eg: certificate, err := tls.LoadX509KeyPair("client.crt", "client.key")
+func genClientCreds(crt, key, ca, servername string) credentials.TransportCredentials {
+	// certificate, err := tls.LoadX509KeyPair(crt, key)
+	// eg: certificate, err := tls.LoadX509KeyPair("client.crt", "client.key")
 
 	// 使用内嵌的证书
-	certificate, err :=tls.X509KeyPair([]byte(crt),[]byte(key))
+	certificate, err := tls.X509KeyPair([]byte(crt), []byte(key))
 	if err != nil {
 		log.Fatal(err)
 	}
 	certPool := x509.NewCertPool()
-	//eg: ca, err := ioutil.ReadFile("ca.crt")
-	//byt, err := ioutil.ReadFile(ca)
-	//if err != nil {
+	// eg: ca, err := ioutil.ReadFile("ca.crt")
+	// byt, err := ioutil.ReadFile(ca)
+	// if err != nil {
 	//	log.Fatal(err)
-	//}
-	byt:=[]byte(ca)
+	// }
+	byt := []byte(ca)
 	// 使用内嵌的证书
 	// eg: if ok := certPool.AppendCertsFromPEM(byt); !ok {
 	if ok := certPool.AppendCertsFromPEM(byt); !ok {
 		log.Fatal("failed to append ca certs")
 	}
 
-	return  credentials.NewTLS(&tls.Config{
-		Certificates:       []tls.Certificate{certificate},
-		ServerName:         servername, // NOTE: 这是必需的!
-		RootCAs:            certPool,
+	return credentials.NewTLS(&tls.Config{
+		Certificates: []tls.Certificate{certificate},
+		ServerName:   servername, // NOTE: 这是必需的!
+		RootCAs:      certPool,
 	})
 }
 
-func genServerCreds(crt,key,ca string) credentials.TransportCredentials {
-	//certificate, err := tls.LoadX509KeyPair(crt, key)
-	//eg: certificate, err := tls.LoadX509KeyPair("client.crt", "client.key")
+func genServerCreds(crt, key, ca string) credentials.TransportCredentials {
+	// certificate, err := tls.LoadX509KeyPair(crt, key)
+	// eg: certificate, err := tls.LoadX509KeyPair("client.crt", "client.key")
 
 	// 使用内嵌的证书
-	certificate, err :=tls.X509KeyPair([]byte(crt),[]byte(key))
+	certificate, err := tls.X509KeyPair([]byte(crt), []byte(key))
 	if err != nil {
 		log.Fatal(err)
 	}
 	certPool := x509.NewCertPool()
-	//byt, err := ioutil.ReadFile(ca)
-	//eg: ca, err := ioutil.ReadFile("ca.crt")
-	//if err != nil {
+	// byt, err := ioutil.ReadFile(ca)
+	// eg: ca, err := ioutil.ReadFile("ca.crt")
+	// if err != nil {
 	//	log.Fatal(err)
-	//}
-	byt:=[]byte(ca)
+	// }
+	byt := []byte(ca)
 	// 使用内嵌的证书
 	// eg: if ok := certPool.AppendCertsFromPEM(byt); !ok {
 	if ok := certPool.AppendCertsFromPEM(byt); !ok {
 		log.Fatal("failed to append ca certs")
 	}
 
-	return  credentials.NewTLS(&tls.Config{
-		Certificates:       []tls.Certificate{certificate},
+	return credentials.NewTLS(&tls.Config{
+		Certificates: []tls.Certificate{certificate},
 		ClientAuth:   tls.RequireAndVerifyClientCert, // NOTE: 这是可选的!
 		ClientCAs:    certPool,
 	})
 }
-
 
 type HelloServiceImpl struct{}
 
@@ -233,11 +233,10 @@ func (p *HelloServiceImpl) Hello(
 
 func main() {
 	go client()
-	//creds:=genServerCreds("server.crt", "server.key","ca.crt")
+	// creds:=genServerCreds("server.crt", "server.key","ca.crt")
 	// 使用内嵌的证书
-	creds:=genServerCreds(server_crt, server_key,ca_crt)
+	creds := genServerCreds(server_crt, server_key, ca_crt)
 	grpcServer := grpc.NewServer(grpc.Creds(creds))
-
 
 	RegisterHelloServiceServer(grpcServer, new(HelloServiceImpl))
 
@@ -249,13 +248,13 @@ func main() {
 
 }
 
-//在新的客户端代码中，不再直接依赖服务器端证书文件。
+// 在新的客户端代码中，不再直接依赖服务器端证书文件。
 // 在credentials.NewTLS函数调用中，客户端通过引入一个CA根证书和服务器的名字来实现对服务器进行验证。
 // 客户端在链接服务器时会首先请求服务器的证书，然后使用CA根证书对收到的服务器端证书进行验证。
-func client()  {
-	//creds:=genClientCreds("client.crt", "client.key","ca.crt","server.io")
+func client() {
+	// creds:=genClientCreds("client.crt", "client.key","ca.crt","server.io")
 	// 使用内嵌的证书
-	creds:=genClientCreds(client_crt, client_key,ca_crt,"server.io")
+	creds := genClientCreds(client_crt, client_key, ca_crt, "server.io")
 	conn, err := grpc.Dial("localhost:1234",
 		grpc.WithTransportCredentials(creds),
 	)
@@ -265,7 +264,7 @@ func client()  {
 	defer conn.Close()
 
 	cli := NewHelloServiceClient(conn)
-	for i:=0;i<10;i++{
+	for i := 0; i < 10; i++ {
 		reply, err := cli.Hello(context.Background(), &String{Value: "hello"})
 		if err != nil {
 			log.Fatal(err)

@@ -3,11 +3,12 @@ package dao
 import (
 	"context"
 	"fmt"
-	"github.com/offer365/example/etcd/embedder"
-	"go.etcd.io/etcd/clientv3"
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/offer365/example/etcd/embedder"
+	"go.etcd.io/etcd/clientv3"
 )
 
 var store Store

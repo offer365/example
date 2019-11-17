@@ -29,9 +29,10 @@ func main() {
 
 	doClientWork(clientChan)
 }
-//每个链接建立后，基于网络链接构造RPC客户端对象并发送到clientChan管道。
+
+// 每个链接建立后，基于网络链接构造RPC客户端对象并发送到clientChan管道。
 //
-//客户端执行RPC调用的操作在doClientWork函数完成：
+// 客户端执行RPC调用的操作在doClientWork函数完成：
 
 func doClientWork(clientChan <-chan *rpc.Client) {
 	client := <-clientChan

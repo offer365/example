@@ -7,10 +7,10 @@ import (
 	"time"
 )
 
-//发布订阅（publish-and-subscribe）模型通常被简写为pub/sub模型。
+// 发布订阅（publish-and-subscribe）模型通常被简写为pub/sub模型。
 // 在这个模型中，消息生产者成为发布者（publisher），而消息消费者则成为订阅者（sub），生产者和消费者是M:N的关系。
 // 在传统生产者和消费者模型中，是将消息发送到一个队列中，而发布订阅模型则是将消息发布给一个主题。
-//为此，我们构建了一个名为pubsub的发布订阅模型支持包：
+// 为此，我们构建了一个名为pubsub的发布订阅模型支持包：
 // Package pubsub implements a simple multi-topic pub-sub library.
 
 type (
@@ -20,10 +20,10 @@ type (
 
 // 发布者对象
 type Publisher struct {
-	sync.RWMutex          // 读写锁
-	buf     int           // 订阅队列的缓存大小
-	timeout time.Duration // 发布超时时间
-	subs    map[sub]topic // 订阅者信息
+	sync.RWMutex               // 读写锁
+	buf          int           // 订阅队列的缓存大小
+	timeout      time.Duration // 发布超时时间
+	subs         map[sub]topic // 订阅者信息
 }
 
 // 构建一个发布者对象, 可以设置发布超时时间和缓存队列的长度
@@ -64,7 +64,7 @@ func (p *Publisher) Publish(v interface{}) {
 	defer p.RUnlock()
 
 	var wg sync.WaitGroup
-	for sub, topic := range p.subs {  // 所有的订阅者
+	for sub, topic := range p.subs { // 所有的订阅者
 		wg.Add(1)
 		go p.sendTopic(sub, topic, v, &wg)
 	}
@@ -78,7 +78,7 @@ func (p *Publisher) Close() {
 
 	for sub := range p.subs {
 		delete(p.subs, sub)
-		close(sub)  // 关闭管道
+		close(sub) // 关闭管道
 	}
 }
 
@@ -114,7 +114,7 @@ func main() {
 	p.Publish("hello, golang!")
 	// 发布者
 	go func() {
-		for range time.NewTicker(time.Second).C{
+		for range time.NewTicker(time.Second).C {
 			p.Publish("hehe")
 		}
 	}()

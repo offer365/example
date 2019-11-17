@@ -2,6 +2,8 @@ package mongodb
 
 import (
 	"context"
+	"io"
+
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
@@ -10,9 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/gridfs"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/x/bsonx"
-	"io"
 )
-
 
 type mongoCli struct {
 	options     *Options
@@ -28,7 +28,7 @@ func (m *mongoCli) Init(ctx context.Context, opts ...Option) (err error) {
 	for _, opt := range opts {
 		opt(m.options)
 	}
-	//m.client, err =mongo.Connect(ctx, options.Client().ApplyURI("mongodb://"+username+":"+password+"@"+m.host))
+	// m.client, err =mongo.Connect(ctx, options.Client().ApplyURI("mongodb://"+username+":"+password+"@"+m.host))
 	m.client, err = mongo.Connect(ctx, options.Client().ApplyURI("mongodb://"+m.options.Addr), options.Client().SetAuth(options.Credential{Username: m.options.Username, Password: m.options.Password, AuthSource: m.options.Database}))
 	if err != nil {
 		log.Fatal(err)
@@ -46,10 +46,10 @@ func (m *mongoCli) Init(ctx context.Context, opts ...Option) (err error) {
 					Keys:    bsonx.Doc{{index, bsonx.Int32(1)},},
 					Options: options.Index().SetUnique(true),
 				}
-				//indexModel = mongo.IndexModel{
+				// indexModel = mongo.IndexModel{
 				//	Keys: bsonx.Doc{{"expire_date", bsonx.Int32(1)}}, // 设置TTL索引列"expire_date"
 				//	Options:options.Index().SetExpireAfterSeconds(1*24*3600), // 设置过期时间1天，即，条目过期一天过自动删除
-				//}
+				// }
 				_, err = m.Collections[coll].Indexes().CreateOne(
 					ctx,
 					indexModel,
@@ -231,7 +231,7 @@ func (m *mongoCli) LastUpdate(coll string, update interface{}) (err error) {
 		log.Error("Collection is not exist.")
 		return
 	}
-	//err=m.Collection.FindOne(ctx,bson.D{},options.FindOne().SetSort(bson.M{"_id": -1})).Decode(data)
+	// err=m.Collection.FindOne(ctx,bson.D{},options.FindOne().SetSort(bson.M{"_id": -1})).Decode(data)
 	ctx, _ := context.WithTimeout(context.Background(), m.options.Timeout)
 	result := Coll.FindOneAndUpdate(ctx, bson.D{}, update, options.FindOneAndUpdate().SetSort(bson.M{"_id": -1}))
 	return result.Err()
@@ -244,7 +244,7 @@ func (m *mongoCli) Update(coll string, filter interface{}, update interface{}) (
 		return
 	}
 	ctx, _ := context.WithTimeout(context.Background(), m.options.Timeout)
-	//Coll.FindOne(ctx,bson.D{},options.FindOne().SetSort(bson.M{"_id": -1})).Decode(data)
+	// Coll.FindOne(ctx,bson.D{},options.FindOne().SetSort(bson.M{"_id": -1})).Decode(data)
 	_, err = Coll.UpdateOne(ctx, filter, update)
 	return
 }

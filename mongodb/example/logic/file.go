@@ -2,12 +2,13 @@ package logic
 
 import (
 	"context"
+	"io"
+	"time"
+
 	"github.com/offer365/example/mongodb/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"io"
-	"time"
 )
 
 func Upload(name string, source io.Reader) (id string, err error) {
