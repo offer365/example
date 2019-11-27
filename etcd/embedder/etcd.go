@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/offer365/odin/log"
 	"go.etcd.io/etcd/auth/authpb"
 	"go.etcd.io/etcd/embed"
 	"go.etcd.io/etcd/etcdserver/etcdserverpb"
@@ -78,7 +77,7 @@ func (e *etcdEmbed) Init(ctx context.Context, opts ...Option) (err error) {
 func (e *etcdEmbed) Run(ready chan struct{}) (err error) {
 	e.ee, err = embed.StartEtcd(e.conf)
 	if err != nil {
-		log.Sugar.Fatal("embed start failed. error: ", err)
+		Sugar.Fatal("embed start failed. error: ", err)
 	}
 
 	defer e.ee.Close()
@@ -86,12 +85,12 @@ func (e *etcdEmbed) Run(ready chan struct{}) (err error) {
 	select {
 	case <-e.ee.Server.ReadyNotify():
 		ready <- struct{}{}
-		log.Sugar.Info("embed server is Ready!")
+		Sugar.Info("embed server is Ready!")
 	case <-time.After(3600 * time.Second):
 		e.ee.Server.Stop() // trigger a shutdown
-		log.Sugar.Error("embed server took too long to start!")
+		Sugar.Error("embed server took too long to start!")
 	}
-	log.Sugar.Fatal(<-e.ee.Err())
+	Sugar.Fatal(<-e.ee.Err())
 	return
 }
 
@@ -113,7 +112,7 @@ func (e *etcdEmbed) SetAuth(username, password string) (err error) {
 		}
 		_, err = ee.Server.AuthStore().UserAdd(user)
 		if err != nil {
-			log.Sugar.Error("embed set auth UserAdd failed. error: ", err)
+			Sugar.Error("embed set auth UserAdd failed. error: ", err)
 			return
 		}
 	}
@@ -123,7 +122,7 @@ func (e *etcdEmbed) SetAuth(username, password string) (err error) {
 	if rl.Roles == nil || len(rl.Roles) == 0 || rl.Roles[0] != username {
 		_, err = ee.Server.AuthStore().RoleAdd(&etcdserverpb.AuthRoleAddRequest{Name: username})
 		if err != nil {
-			log.Sugar.Error("embed set auth RoleAdd failed. error: ", err)
+			Sugar.Error("embed set auth RoleAdd failed. error: ", err)
 			return
 		}
 		perm := &etcdserverpb.AuthRoleGrantPermissionRequest{
@@ -137,7 +136,7 @@ func (e *etcdEmbed) SetAuth(username, password string) (err error) {
 		_, err = ee.Server.AuthStore().RoleGrantPermission(perm)
 
 		if err != nil {
-			log.Sugar.Error("embed set auth RoleGrantPermission failed. error: ", err)
+			Sugar.Error("embed set auth RoleGrantPermission failed. error: ", err)
 			return
 		}
 	}
@@ -145,7 +144,7 @@ func (e *etcdEmbed) SetAuth(username, password string) (err error) {
 	// 关联角色用户
 	_, err = ee.Server.AuthStore().UserGrantRole(&etcdserverpb.AuthUserGrantRoleRequest{User: username, Role: username})
 	if err != nil {
-		log.Sugar.Error("embed set auth UserGrantRole failed. error: ", err)
+		Sugar.Error("embed set auth UserGrantRole failed. error: ", err)
 		return
 	}
 
@@ -153,7 +152,7 @@ func (e *etcdEmbed) SetAuth(username, password string) (err error) {
 	if !ee.Server.AuthStore().IsAuthEnabled() {
 		err = ee.Server.AuthStore().AuthEnable()
 		if err != nil {
-			log.Sugar.Error("embed set auth AuthEnable failed. error: ", err)
+			Sugar.Error("embed set auth AuthEnable failed. error: ", err)
 			return
 		}
 	}
