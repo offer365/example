@@ -19,7 +19,7 @@ const (
 )
 
 // 给定一个env key或者一个默认值
-func SugaredLog(env string, deft string) (sugar *zap.SugaredLogger, err error) {
+func SugaredLog(env string, def string) (sugar *zap.SugaredLogger, err error) {
 	var (
 		level string
 		lg    *zap.Logger
