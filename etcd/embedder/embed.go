@@ -33,7 +33,7 @@ func DefaultOpts() *Options {
 		dir:          "disk/default",
 		clientAddr:   "127.0.0.1:12379",
 		peerAddr:     "127.0.0.1:12380",
-		cluster:      map[string]string{"default": "127.0.0.1"},
+		cluster:      map[string]string{"default": "127.0.0.1:12380"},
 		clusterState: "new",
 		metrics:      "",
 		metricsUrl:   "",
