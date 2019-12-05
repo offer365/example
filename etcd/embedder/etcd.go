@@ -44,6 +44,40 @@ func (e *etcdEmbed) Init(ctx context.Context, opts ...Option) (err error) {
 
 	e.conf.HostWhitelist = e.hostWhitelist(e.options.cluster)
 	e.conf.CORS = e.hostWhitelist(e.options.cluster)
+	// e.conf.ClientAutoTLS=true
+	// e.conf.ClientTLSInfo=transport.TLSInfo{
+	// 	CertFile:            "",
+	// 	KeyFile:             "",
+	// 	TrustedCAFile:       "",
+	// 	ClientCertAuth:      false,
+	// 	CRLFile:             "",
+	// 	InsecureSkipVerify:  false,
+	// 	SkipClientSANVerify: false,
+	// 	ServerName:          "",
+	// 	HandshakeFailure:    nil,
+	// 	CipherSuites:        nil,
+	// 	AllowedCN:           "",
+	// 	AllowedHostname:     "",
+	// 	Logger:              nil,
+	// 	EmptyCN:             false,
+	// }
+	// e.conf.PeerAutoTLS=true
+	// e.conf.PeerTLSInfo=transport.TLSInfo{
+	// 	CertFile:            "",
+	// 	KeyFile:             "",
+	// 	TrustedCAFile:       "",
+	// 	ClientCertAuth:      false,
+	// 	CRLFile:             "",
+	// 	InsecureSkipVerify:  false,
+	// 	SkipClientSANVerify: false,
+	// 	ServerName:          "",
+	// 	HandshakeFailure:    nil,
+	// 	CipherSuites:        nil,
+	// 	AllowedCN:           "",
+	// 	AllowedHostname:     "",
+	// 	Logger:              nil,
+	// 	EmptyCN:             false,
+	// }
 
 	// metrics 监控
 	if e.options.metricsUrl != "" {
