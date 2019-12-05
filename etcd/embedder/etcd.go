@@ -31,7 +31,7 @@ func (e *etcdEmbed) Init(ctx context.Context, opts ...Option) (err error) {
 	e.conf = embed.NewConfig()
 	e.conf.Name = e.options.name
 	e.conf.Dir = e.options.dir
-	e.conf.InitialClusterToken = "odin-token"
+	e.conf.InitialClusterToken = "example-embed-token"
 	e.conf.ClusterState = e.options.clusterState // "new" or "existing"
 	e.conf.EnablePprof = false
 	e.conf.TickMs = 200
@@ -98,10 +98,21 @@ func (e *etcdEmbed) SetAuth(username, password string) (err error) {
 	var (
 		ul *etcdserverpb.AuthUserListResponse
 		rl *etcdserverpb.AuthRoleListResponse
+		ug *etcdserverpb.AuthUserGetResponse
 	)
 	ee := e.ee
+
+	if username != "root" {
+		Sugar.Error("only root user is supported")
+		return
+	}
+
 	// 添加用户
-	ul, err = ee.Server.AuthStore().UserList(&etcdserverpb.AuthUserListRequest{})
+	if ul, err = ee.Server.AuthStore().UserList(&etcdserverpb.AuthUserListRequest{}); err != nil {
+		Sugar.Error("embed set auth UserList failed. error: ", err)
+		return
+	}
+	// 用户不存在
 	if ul.Users == nil || len(ul.Users) == 0 || ul.Users[0] != username {
 		user := &etcdserverpb.AuthUserAddRequest{
 			Name:     username,
@@ -110,18 +121,30 @@ func (e *etcdEmbed) SetAuth(username, password string) (err error) {
 				NoPassword: false,
 			},
 		}
-		_, err = ee.Server.AuthStore().UserAdd(user)
-		if err != nil {
+		if _, err = ee.Server.AuthStore().UserAdd(user); err != nil {
 			Sugar.Error("embed set auth UserAdd failed. error: ", err)
+			return
+		}
+	} else { // 用户已存在
+		// 检查用户 是否已经授权
+		if ug, err = ee.Server.AuthStore().UserGet(&etcdserverpb.AuthUserGetRequest{Name: username}); err != nil {
+			Sugar.Error("embed set auth UserGet failed. error: ", err)
+			return
+		}
+		// 已经授权
+		if ug.Roles != nil && len(ug.Roles) > 0 && ug.Roles[0] == username {
+			Sugar.Info("embed auth is set.")
 			return
 		}
 	}
 
 	// 添加角色
-	rl, err = ee.Server.AuthStore().RoleList(&etcdserverpb.AuthRoleListRequest{})
+	if rl, err = ee.Server.AuthStore().RoleList(&etcdserverpb.AuthRoleListRequest{}); err != nil {
+		Sugar.Error("embed set auth RoleList failed. error: ", err)
+		return
+	}
 	if rl.Roles == nil || len(rl.Roles) == 0 || rl.Roles[0] != username {
-		_, err = ee.Server.AuthStore().RoleAdd(&etcdserverpb.AuthRoleAddRequest{Name: username})
-		if err != nil {
+		if _, err = ee.Server.AuthStore().RoleAdd(&etcdserverpb.AuthRoleAddRequest{Name: username}); err != nil {
 			Sugar.Error("embed set auth RoleAdd failed. error: ", err)
 			return
 		}
@@ -133,29 +156,26 @@ func (e *etcdEmbed) SetAuth(username, password string) (err error) {
 				RangeEnd: []byte("/*"),
 			},
 		}
-		_, err = ee.Server.AuthStore().RoleGrantPermission(perm)
-
-		if err != nil {
+		if _, err = ee.Server.AuthStore().RoleGrantPermission(perm); err != nil {
 			Sugar.Error("embed set auth RoleGrantPermission failed. error: ", err)
 			return
 		}
 	}
 
 	// 关联角色用户
-	_, err = ee.Server.AuthStore().UserGrantRole(&etcdserverpb.AuthUserGrantRoleRequest{User: username, Role: username})
-	if err != nil {
+	if _, err = ee.Server.AuthStore().UserGrantRole(&etcdserverpb.AuthUserGrantRoleRequest{User: username, Role: username}); err != nil {
 		Sugar.Error("embed set auth UserGrantRole failed. error: ", err)
 		return
 	}
 
 	// 开启认证
 	if !ee.Server.AuthStore().IsAuthEnabled() {
-		err = ee.Server.AuthStore().AuthEnable()
-		if err != nil {
+		if err = ee.Server.AuthStore().AuthEnable(); err != nil {
 			Sugar.Error("embed set auth AuthEnable failed. error: ", err)
 			return
 		}
 	}
+	Sugar.Info("embed set auth success.")
 	return
 }
 
