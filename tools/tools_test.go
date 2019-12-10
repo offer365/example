@@ -21,7 +21,6 @@ func TestRunTime(t *testing.T) {
 }
 
 func TestMd5sum(t *testing.T) {
-
 	str := RandString(16)
 	fmt.Println(str)
 	fmt.Println(Md5sum([]byte(str), []byte("")))

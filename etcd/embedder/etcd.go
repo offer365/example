@@ -31,7 +31,7 @@ func (e *etcdEmbed) Init(ctx context.Context, opts ...Option) (err error) {
 	e.conf = embed.NewConfig()
 	e.conf.Name = e.options.name
 	e.conf.Dir = e.options.dir
-	e.conf.InitialClusterToken = "example-embed-token"
+	e.conf.InitialClusterToken = e.options.clusterToken
 	e.conf.ClusterState = e.options.clusterState // "new" or "existing"
 	e.conf.EnablePprof = false
 	e.conf.TickMs = 200

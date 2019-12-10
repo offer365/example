@@ -44,6 +44,9 @@ func RandStringRunes(n int) string {
 
 // 运行时间
 func RunTime(now, start int64) string {
+	if now < start {
+		return ""
+	}
 	online := now - start
 	d := online / 86400
 	h := (online - d*86400) / 3600
@@ -67,14 +70,20 @@ func Abs2(n int64) int64 {
 
 func Md5sum(byt []byte, salt []byte) string {
 	h := md5.New()
+	if salt != nil {
+		byt = append(byt, salt...)
+	}
 	h.Write(byt)
-	return base64.StdEncoding.EncodeToString(h.Sum(salt))
+	return base64.StdEncoding.EncodeToString(h.Sum(nil))
 }
 
 func Sha256sum(byt []byte, salt []byte) string {
 	h := sha256.New()
+	if salt != nil {
+		byt = append(byt, salt...)
+	}
 	h.Write(byt)
-	return base64.StdEncoding.EncodeToString(h.Sum(salt))
+	return base64.StdEncoding.EncodeToString(h.Sum(nil))
 }
 
 // BenchmarkMd5Hash-4               3500572               326 ns/op

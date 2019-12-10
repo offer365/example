@@ -26,6 +26,7 @@ type Options struct {
 	peerAddr     string
 	cluster      map[string]string
 	clusterState string // "new" or "existing"
+	clusterToken string
 	metrics      string
 	metricsUrl   string
 }
@@ -40,6 +41,7 @@ func DefaultOpts() *Options {
 		peerAddr:     "127.0.0.1:12380",
 		cluster:      map[string]string{"default": "127.0.0.1:12380"},
 		clusterState: "new",
+		clusterToken: "example-embed-token",
 		metrics:      "",
 		metricsUrl:   "",
 	}
@@ -83,6 +85,12 @@ func WithClusterState(state string) Option {
 		} else {
 			opts.clusterState = "new"
 		}
+	}
+}
+
+func WithClusterToken(token string) Option {
+	return func(opts *Options) {
+		opts.clusterToken = token
 	}
 }
 

@@ -26,6 +26,10 @@ WMI使用的WIN32_类库名： https://blog.csdn.net/liuxingbin/article/details/
 */
 
 
+type _host struct {
+
+}
+
 type _bios struct {
 	Name              string
 	Manufacturer      string
@@ -146,7 +150,7 @@ func (w *Windows) Network() []hd.Network {
 	return nts
 }
 
-func (w *Windows) OS() *hd.Os {
+func (w *Windows) OS() *hd.OS {
 	var dst []_os
 	query:=`SELECT  Caption,Organization,BuildNumber,SerialNumber,OSArchitecture,Version  FROM Win32_OperatingSystem WHERE (Name IS NOT NULL)`
 	err := wmi.Query(query, &dst)
@@ -155,7 +159,7 @@ func (w *Windows) OS() *hd.Os {
 		return nil
 	}
 	if len(dst) > 0 {
-		return &hd.Os{
+		return &hd.OS{
 			Name: dst[0].Caption,
 			Version: dst[0].Version,
 			Vendor:  dst[0].Organization,

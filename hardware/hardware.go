@@ -12,7 +12,7 @@ type Hardware interface {
 	Cpu() *hd.Cpu
 	Mem() *hd.Memory
 	Network() []hd.Network
-	OS() *hd.Os
+	OS() *hd.OS
 	Bios() *hd.Bios
 	Board() *hd.Board
 	Product() *hd.Product
