@@ -3,21 +3,7 @@ package embedder
 import (
 	"context"
 	"strings"
-
-	"go.etcd.io/etcd/pkg/logutil"
-	"go.uber.org/zap"
 )
-
-var Sugar *zap.SugaredLogger
-
-func init() {
-	lg, _ := zap.NewProduction()
-	defer lg.Sync()
-	cfg := logutil.DefaultZapLoggerConfig
-	cfg.Level = zap.NewAtomicLevelAt(zap.InfoLevel)
-	lg, _ = cfg.Build()
-	Sugar = lg.Sugar()
-}
 
 type Options struct {
 	name         string
@@ -29,6 +15,16 @@ type Options struct {
 	clusterToken string
 	metrics      string
 	metricsUrl   string
+	logger       Logger
+}
+
+type Logger interface {
+	Info(...interface{})
+	Infof(string, ...interface{})
+	Error(...interface{})
+	Errorf(string, ...interface{})
+	Fatal(...interface{})
+	Fatalf(string, ...interface{})
 }
 
 type Option func(opts *Options)
@@ -91,6 +87,12 @@ func WithClusterState(state string) Option {
 func WithClusterToken(token string) Option {
 	return func(opts *Options) {
 		opts.clusterToken = token
+	}
+}
+
+func WithLogger(logger Logger) Option {
+	return func(opts *Options) {
+		opts.logger = logger
 	}
 }
 

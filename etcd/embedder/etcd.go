@@ -9,7 +9,9 @@ import (
 	"go.etcd.io/etcd/auth/authpb"
 	"go.etcd.io/etcd/embed"
 	"go.etcd.io/etcd/etcdserver/etcdserverpb"
+	"go.etcd.io/etcd/pkg/logutil"
 	"go.etcd.io/etcd/pkg/types"
+	"go.uber.org/zap"
 )
 
 const (
@@ -27,6 +29,14 @@ func (e *etcdEmbed) Init(ctx context.Context, opts ...Option) (err error) {
 	e.options = DefaultOpts()
 	for _, opt := range opts {
 		opt(e.options)
+	}
+	if e.options.logger == nil {
+		lg, _ := zap.NewProduction()
+		defer lg.Sync()
+		cfg := logutil.DefaultZapLoggerConfig
+		cfg.Level = zap.NewAtomicLevelAt(zap.WarnLevel)
+		lg, _ = cfg.Build()
+		e.options.logger = lg.Sugar()
 	}
 	e.conf = embed.NewConfig()
 	e.conf.Name = e.options.name
@@ -111,7 +121,7 @@ func (e *etcdEmbed) Init(ctx context.Context, opts ...Option) (err error) {
 func (e *etcdEmbed) Run(ready chan struct{}) (err error) {
 	e.ee, err = embed.StartEtcd(e.conf)
 	if err != nil {
-		Sugar.Fatal("embed start failed. error: ", err)
+		e.options.logger.Fatal("embed start failed. error: ", err)
 	}
 
 	defer e.ee.Close()
@@ -119,12 +129,12 @@ func (e *etcdEmbed) Run(ready chan struct{}) (err error) {
 	select {
 	case <-e.ee.Server.ReadyNotify():
 		ready <- struct{}{}
-		Sugar.Info("embed server is Ready!")
+		e.options.logger.Info("embed server is Ready!")
 	case <-time.After(3600 * time.Second):
 		e.ee.Server.Stop() // trigger a shutdown
-		Sugar.Error("embed server took too long to start!")
+		e.options.logger.Error("embed server took too long to start!")
 	}
-	Sugar.Fatal(<-e.ee.Err())
+	e.options.logger.Fatal(<-e.ee.Err())
 	return
 }
 
@@ -137,13 +147,13 @@ func (e *etcdEmbed) SetAuth(username, password string) (err error) {
 	ee := e.ee
 
 	if username != "root" {
-		Sugar.Error("only root user is supported")
+		e.options.logger.Error("only root user is supported")
 		return
 	}
 
 	// 添加用户
 	if ul, err = ee.Server.AuthStore().UserList(&etcdserverpb.AuthUserListRequest{}); err != nil {
-		Sugar.Error("embed set auth UserList failed. error: ", err)
+		e.options.logger.Error("embed set auth UserList failed. error: ", err)
 		return
 	}
 	// 用户不存在
@@ -156,30 +166,30 @@ func (e *etcdEmbed) SetAuth(username, password string) (err error) {
 			},
 		}
 		if _, err = ee.Server.AuthStore().UserAdd(user); err != nil {
-			Sugar.Error("embed set auth UserAdd failed. error: ", err)
+			e.options.logger.Error("embed set auth UserAdd failed. error: ", err)
 			return
 		}
 	} else { // 用户已存在
 		// 检查用户 是否已经授权
 		if ug, err = ee.Server.AuthStore().UserGet(&etcdserverpb.AuthUserGetRequest{Name: username}); err != nil {
-			Sugar.Error("embed set auth UserGet failed. error: ", err)
+			e.options.logger.Error("embed set auth UserGet failed. error: ", err)
 			return
 		}
 		// 已经授权
 		if ug.Roles != nil && len(ug.Roles) > 0 && ug.Roles[0] == username {
-			Sugar.Info("embed auth is set.")
+			e.options.logger.Info("embed auth is set.")
 			return
 		}
 	}
 
 	// 添加角色
 	if rl, err = ee.Server.AuthStore().RoleList(&etcdserverpb.AuthRoleListRequest{}); err != nil {
-		Sugar.Error("embed set auth RoleList failed. error: ", err)
+		e.options.logger.Error("embed set auth RoleList failed. error: ", err)
 		return
 	}
 	if rl.Roles == nil || len(rl.Roles) == 0 || rl.Roles[0] != username {
 		if _, err = ee.Server.AuthStore().RoleAdd(&etcdserverpb.AuthRoleAddRequest{Name: username}); err != nil {
-			Sugar.Error("embed set auth RoleAdd failed. error: ", err)
+			e.options.logger.Error("embed set auth RoleAdd failed. error: ", err)
 			return
 		}
 		perm := &etcdserverpb.AuthRoleGrantPermissionRequest{
@@ -191,25 +201,25 @@ func (e *etcdEmbed) SetAuth(username, password string) (err error) {
 			},
 		}
 		if _, err = ee.Server.AuthStore().RoleGrantPermission(perm); err != nil {
-			Sugar.Error("embed set auth RoleGrantPermission failed. error: ", err)
+			e.options.logger.Error("embed set auth RoleGrantPermission failed. error: ", err)
 			return
 		}
 	}
 
 	// 关联角色用户
 	if _, err = ee.Server.AuthStore().UserGrantRole(&etcdserverpb.AuthUserGrantRoleRequest{User: username, Role: username}); err != nil {
-		Sugar.Error("embed set auth UserGrantRole failed. error: ", err)
+		e.options.logger.Error("embed set auth UserGrantRole failed. error: ", err)
 		return
 	}
 
 	// 开启认证
 	if !ee.Server.AuthStore().IsAuthEnabled() {
 		if err = ee.Server.AuthStore().AuthEnable(); err != nil {
-			Sugar.Error("embed set auth AuthEnable failed. error: ", err)
+			e.options.logger.Error("embed set auth AuthEnable failed. error: ", err)
 			return
 		}
 	}
-	Sugar.Info("embed set auth success.")
+	e.options.logger.Info("embed set auth success.")
 	return
 }
 

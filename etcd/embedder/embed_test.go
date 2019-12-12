@@ -5,7 +5,22 @@ import (
 	"fmt"
 	"testing"
 	"time"
+
+	"go.etcd.io/etcd/pkg/logutil"
+	"go.uber.org/zap"
 )
+
+var sugar *zap.SugaredLogger
+
+func init()  {
+	lg, _ := zap.NewProduction()
+	defer lg.Sync()
+	cfg := logutil.DefaultZapLoggerConfig
+	// cfg.Level = zap.NewAtomicLevelAt(zap.WarnLevel)
+	cfg.Level = zap.NewAtomicLevelAt(zap.InfoLevel)
+	lg, _ = cfg.Build()
+	sugar = lg.Sugar()
+}
 
 func TestNewEmbed(t *testing.T) {
 	embed := NewEmbed()
@@ -15,7 +30,9 @@ func TestNewEmbed(t *testing.T) {
 		WithClientAddr("127.0.0.1:12379"),
 		WithPeerAddr("127.0.0.1:12380"),
 		WithCluster(map[string]string{"default": "127.0.0.1:12380"}),
-		WithClusterState("new"))
+		WithClusterState("new"),
+		WithLogger(sugar),
+		)
 	// err := embed.Init(context.Background())
 	fmt.Println(err)
 	t.Error(err)
