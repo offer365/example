@@ -7,18 +7,23 @@ import (
 	"testing"
 	"time"
 
-	"github.com/offer365/example/etcd/embedder"
 	"go.etcd.io/etcd/clientv3"
 )
 
-var store Store
+var (
+	Username = "root"
+	Password = "613f#8d164df4ACPF49@93a510df49!66f98b*d6"
+	store Store
+)
+
+
 
 func init() {
 	store = NewStore()
 	err := store.Init(context.Background(),
 		WithAddr("127.0.0.1:12379"),
-		WithUsername(embedder.Username),
-		WithPassword(embedder.Password),
+		WithUsername(Username),
+		WithPassword(Password),
 		WithTimeout(time.Millisecond*2000),
 	)
 	fmt.Println(err)
