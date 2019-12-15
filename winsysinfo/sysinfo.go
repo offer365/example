@@ -14,7 +14,6 @@ powershell使用： Get-WmiObject -Class Win32_Product
 WMI使用的WIN32_类库名： https://blog.csdn.net/liuxingbin/article/details/6790124
 */
 
-
 // SysInfo struct encapsulates all other information structs.
 type SysInfo struct {
 	Meta    Meta            `json:"sysinfo"`
@@ -22,6 +21,7 @@ type SysInfo struct {
 	Kernel  Kernel          `json:"kernel"`
 	Product Product         `json:"product"`
 	Board   Board           `json:"board"`
+	Node    Node            `json:"node"`
 	Chassis Chassis         `json:"chassis"`
 	BIOS    BIOS            `json:"bios"`
 	CPU     CPU             `json:"cpu"`
@@ -51,4 +51,6 @@ func (si *SysInfo) GetSysInfo() {
 	// Software info
 	si.getOSInfo()
 	si.getKernelInfo()
+	// Node info
+	si.getNodeInfo()
 }

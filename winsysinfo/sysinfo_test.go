@@ -22,7 +22,7 @@ func TestBios(t *testing.T) {
 	var Date string
 	if len(dst) > 0 {
 		Vendor := dst[0].Manufacturer
-		Version := dst[0].SMBIOSBIOSVersion
+		Version := dst[0].Version
 		name := dst[0].Name
 		if r, err := regexp.Compile(`\d+/\d+/\d+\s+\d+:\d+:\d+`); err == nil {
 			Date = r.FindString(name)
@@ -178,9 +178,9 @@ func TestProduct(t *testing.T) {
 }
 
 func TestSysInfo_GetSysInfo(t *testing.T) {
-	si:=SysInfo{}
+	si := SysInfo{}
 	si.GetSysInfo()
-	byt,err:=json.Marshal(si)
+	byt, err := json.Marshal(si)
 	fmt.Println(err)
 	fmt.Println(string(byt))
 }

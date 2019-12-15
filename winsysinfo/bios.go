@@ -5,6 +5,7 @@
 package winsysinfo
 
 import (
+	"fmt"
 	"regexp"
 
 	"github.com/StackExchange/wmi"
@@ -21,15 +22,15 @@ type _bios struct {
 	Name              string
 	Manufacturer      string
 	SerialNumber      string
-	SMBIOSBIOSVersion string
-	Version           string
+	Version              string
 }
 
 func (si *SysInfo) getBIOSInfo() {
 	// Win32_BIOS 参数的说明 https://blog.csdn.net/yeyingss/article/details/49383807
 	var dst []_bios
-	query := `SELECT Name,Manufacturer,SerialNumber,Version FROM Win32_BIOS WHERE (Name IS NOT NULL)`
+	query := `SELECT Name,Manufacturer,SerialNumber,Version    FROM Win32_BIOS WHERE (Name IS NOT NULL)`
 	err := wmi.Query(query, &dst) // WHERE (BIOSVersion IS NOT NULL)
+	fmt.Println(err)
 	if err != nil {
 		return
 	}

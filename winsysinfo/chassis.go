@@ -18,7 +18,7 @@ type Chassis struct {
 }
 
 type _chassis struct {
-	ChassisTypes   uint16
+	// ChassisTypes   uint16
 	Manufacturer   string
 	SerialNumber   string
 	Version        string
@@ -28,7 +28,7 @@ type _chassis struct {
 func (si *SysInfo) getChassisInfo() {
 	// Win32_baseboard 主板 参数说明  https://blog.csdn.net/yeyingss/article/details/49357639
 	var dst []_chassis
-	query := `SELECT  ChassisTypes,Manufacturer,SerialNumber,Version,SMBIOSAssetTag  FROM Win32_SystemEnclosure WHERE (Name IS NOT NULL)`
+	query := `SELECT  Manufacturer,SerialNumber,Version,SMBIOSAssetTag  FROM Win32_SystemEnclosure WHERE (Name IS NOT NULL)`
 	err := wmi.Query(query, &dst)
 	if err != nil {
 		return

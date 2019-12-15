@@ -14,6 +14,8 @@ func TestAbs(t *testing.T) {
 
 func TestRandString(t *testing.T) {
 	fmt.Println(RandString(32))
+	fmt.Println(RandString(32))
+
 }
 
 func TestRunTime(t *testing.T) {
