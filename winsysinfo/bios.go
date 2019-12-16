@@ -5,7 +5,6 @@
 package winsysinfo
 
 import (
-	"fmt"
 	"regexp"
 
 	"github.com/StackExchange/wmi"
@@ -30,7 +29,6 @@ func (si *SysInfo) getBIOSInfo() {
 	var dst []_bios
 	query := `SELECT Name,Manufacturer,SerialNumber,Version    FROM Win32_BIOS WHERE (Name IS NOT NULL)`
 	err := wmi.Query(query, &dst) // WHERE (BIOSVersion IS NOT NULL)
-	fmt.Println(err)
 	if err != nil {
 		return
 	}
