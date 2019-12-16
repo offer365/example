@@ -9,6 +9,7 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
+	"errors"
 )
 
 // 补码
@@ -24,6 +25,9 @@ func PKCS7Padding(cipherText []byte, blockSize int) []byte {
 func PKCS7UnPadding(src []byte) []byte {
 	length := len(src)
 	unPadDing := int(src[length-1])
+	if length < unPadDing{
+		return nil
+	}
 	return src[:(length - unPadDing)]
 }
 
@@ -31,7 +35,7 @@ func PKCS7UnPadding(src []byte) []byte {
 func AesCbcEncrypt(src, key []byte) ([]byte, error) {
 	length := len(key)
 	if length%8 != 0 || length < 16 || length > 32 {
-		panic("The AES key should be,either 16, 24, or 32 bytes.")
+		return nil,errors.New("The AES key should be,either 16, 24, or 32 bytes.")
 	}
 	// NewCipher创建并返回一个新的cipher.Block。 关键参数应该是AES密钥， 要选择16个，24个或32个字节 AES-128，AES-192或AES-256。
 	// 获取block块
@@ -56,7 +60,7 @@ func AesCbcEncrypt(src, key []byte) ([]byte, error) {
 func AesCbcDecrypt(src, key []byte) ([]byte, error) {
 	length := len(key)
 	if length%8 != 0 || length < 16 || length > 32 {
-		panic("The AES key should be,either 16, 24, or 32 bytes.")
+		return nil,errors.New("The AES key should be,either 16, 24, or 32 bytes.")
 	}
 	block, err := aes.NewCipher(key)
 	if err != nil {

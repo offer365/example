@@ -29,10 +29,10 @@ func BenchmarkAesCbcCrypt(b *testing.B) {
 }
 
 func BenchmarkAesCrtCrypt(b *testing.B) {
-	cipherText:= AesCrtCrypt(text,key)
+	cipherText,_:= AesCrtCrypt(text,key)
 	fmt.Println(base64.StdEncoding.EncodeToString(cipherText))
 	//解密
-	plainText:= AesCrtCrypt(cipherText,key)
+	plainText,_:= AesCrtCrypt(cipherText,key)
 	fmt.Println(string(plainText))
 
 }
