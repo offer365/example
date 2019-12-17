@@ -26,13 +26,11 @@ import (
 */
 
 const (
-	privateFileName="private.pem"
-	publicFileName="public.pem"
 	privateKeyPrefix="RSA PRIVATE KEY "
 	publicKeyPrefix="RSA PUBLIC KEY "
 )
 
-func GetRsaKey(bits int)error{
+func GetRsaKey(bits int,privateFileName,publicFileName string)error{
 	// bits 1024 2048 4096
 	privateKey, err:= rsa.GenerateKey(rand.Reader, bits)
 	if err!=nil{
