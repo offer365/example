@@ -1,12 +1,12 @@
-package endeecc
+package endeaesecc
 
 import (
-	"encoding/hex"
+	"encoding/base64"
 	"fmt"
 	"testing"
 )
 
-const (
+const  (
 	pri=`
 -----BEGIN ECC PRIVATE KEY -----
 MHcCAQEEIFcWCOLVJ2VoDzKSZiNXUcVOqhlt2i9/k9urCCgCJ4TaoAoGCCqGSM49
@@ -20,19 +20,13 @@ MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEeRcuzZ6fPlixH02gJG5c3laWMxWy
 SeD/JBPL6fbSgj3YPl8x3AYmbHDrAnpe1BAMZPbAARuojZTAkCDhp7TTkA==
 -----END ECC PUBLIC KEY -----
 `
+	aes=`f7e8b819l0ad0ccf9a9g8fc5e8c4765q`
 )
 
-func TestEccDecrypt(t *testing.T) {
-	GetEccKey()
-	var err error
-	var text = []byte("hehe")
-	byt,_:=EccEncrypt(text,[]byte(pub))
-	fmt.Println(hex.EncodeToString(byt),err)
-	byt,err=EccDecrypt(byt,[]byte(pri))
-	fmt.Println(string(byt))
-
-	// byt,err=goEncrypt.EccEncrypt(text,[]byte(pub))
-	// fmt.Println(hex.EncodeToString(byt),err)
-	// byt,err=goEncrypt.EccDecrypt(byt,[]byte(pri))
-	// fmt.Println(string(byt))
+func TestPubEncrypt(t *testing.T) {
+	text:=[]byte("hello world.")
+	byt,err:=PubEncrypt(text,[]byte(pub),[]byte(aes))
+	fmt.Println(base64.StdEncoding.EncodeToString(byt),err)
+	byt,err=PriDecrypt(byt,[]byte(pri),[]byte(aes))
+	fmt.Println(string(byt),err)
 }

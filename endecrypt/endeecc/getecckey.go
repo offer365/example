@@ -17,13 +17,12 @@ import (
 */
 
 const (
-	eccPrivateFileName="eccprivate.pem"
-	eccPublishFileName="eccpublic.pem"
 	eccPrivateKeyPrefix="ECC PRIVATE KEY "
 	eccPublicKeyPrefix="ECC PUBLIC KEY "
 )
 
-func GetEccKey()error{
+func GetEccKey(eccPrivateFileName,eccPublishFileName string)error{
+	// elliptic.P256() elliptic.P521()
 	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err!=nil{
 		return err
