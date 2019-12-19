@@ -12,16 +12,17 @@ import (
 
 // BIOS information.
 type BIOS struct {
+	Serial  string `json:"serial,omitempty"`
 	Vendor  string `json:"vendor,omitempty"`
 	Version string `json:"version,omitempty"`
 	Date    string `json:"date,omitempty"`
 }
 
 type _bios struct {
-	Name              string
-	Manufacturer      string
-	SerialNumber      string
-	Version              string
+	Name         string
+	Manufacturer string
+	SerialNumber string
+	Version      string
 }
 
 func (si *SysInfo) getBIOSInfo() {
@@ -35,6 +36,7 @@ func (si *SysInfo) getBIOSInfo() {
 	if len(dst) > 0 {
 		si.BIOS.Vendor = dst[0].Manufacturer
 		si.BIOS.Version = dst[0].Version
+		si.BIOS.Serial = dst[0].SerialNumber
 		name := dst[0].Name
 		if r, err := regexp.Compile(`\d+/\d+/\d+\s+\d+:\d+:\d+`); err == nil {
 			si.BIOS.Date = r.FindString(name)
