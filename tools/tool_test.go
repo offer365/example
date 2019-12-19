@@ -25,8 +25,8 @@ func TestRunTime(t *testing.T) {
 func TestMd5sum(t *testing.T) {
 	str := RandString(16)
 	fmt.Println(str)
-	fmt.Println(Md5sum([]byte(str), []byte("")))
-	fmt.Println(Sha256sum([]byte(str), []byte("")))
+	fmt.Println(Md5Hex([]byte(str), []byte("")))
+	fmt.Println(Sha256Hex([]byte(str), []byte("")))
 
 }
 

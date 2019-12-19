@@ -2,6 +2,7 @@ package tools
 
 import "testing"
 
+// go test -test.bench=".*"
 // go test -test.bench=.
 var byt = []byte("hello world")
 

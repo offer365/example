@@ -4,27 +4,37 @@ import (
 	"crypto/md5"
 	"crypto/sha1"
 	"crypto/sha256"
-	"encoding/base64"
+	"crypto/sha512"
+	"encoding/hex"
 
 	"github.com/spaolacci/murmur3"
 )
 
-func Md5sum(byt []byte, salt []byte) string {
+func Md5Hex(byt []byte, salt []byte) string {
 	h := md5.New()
 	if salt != nil {
 		byt = append(byt, salt...)
 	}
 	h.Write(byt)
-	return base64.StdEncoding.EncodeToString(h.Sum(nil))
+	return hex.EncodeToString(h.Sum(nil))
 }
 
-func Sha256sum(byt []byte, salt []byte) string {
+func Sha256Hex(byt []byte, salt []byte) string {
 	h := sha256.New()
 	if salt != nil {
 		byt = append(byt, salt...)
 	}
 	h.Write(byt)
-	return base64.StdEncoding.EncodeToString(h.Sum(nil))
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+func Sha512Hex(byt []byte, salt []byte) string {
+	h := sha512.New()
+	if salt != nil {
+		byt = append(byt, salt...)
+	}
+	h.Write(byt)
+	return hex.EncodeToString(h.Sum(nil))
 }
 
 // BenchmarkMd5Hash-4               3500572               326 ns/op
@@ -34,12 +44,12 @@ func Sha256sum(byt []byte, salt []byte) string {
 // murmurhash相比其它的算法有三倍以上的性能提升
 func Md5Hash(byt []byte) string {
 	res := md5.Sum(byt) // [16]byte
-	return base64.StdEncoding.EncodeToString(res[:])
+	return hex.EncodeToString(res[:])
 }
 
 func Sha1Hash(byt []byte) string {
 	res := sha1.Sum(byt) // [20]byte
-	return base64.StdEncoding.EncodeToString(res[:])
+	return hex.EncodeToString(res[:])
 }
 
 func Murmur32(byt []byte) uint32 {
