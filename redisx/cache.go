@@ -20,6 +20,7 @@ func DefaultOpts() *Options {
 	return &Options{
 		Addr:      "127.0.0.1:6379",
 		Password:  "",
+		Database:  "0",
 		Timeout:   20 * time.Second,
 		MaxIdle:   60,
 		MaxActive: 1000,
