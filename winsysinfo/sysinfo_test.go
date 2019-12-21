@@ -137,7 +137,7 @@ func TestMem(t *testing.T) {
 
 func TestNetwork(t *testing.T) {
 	var dst []_network
-	query := `SELECT Name,Description,MACAddress,Speed,Manufacturer FROM Win32_NetworkAdapter WHERE (Speed IS NOT NULL) AND (Speed < 9223372036854775807) AND (NOT (PNPDeviceID LIKE 'ROOT%'))`
+	query := `SELECT Name,Description,MACAddress,Speed,Manufacturer FROM Win32_NetworkAdapter WHERE (PhysicalAdapter = True) AND (NOT (PNPDeviceID LIKE 'ROOT%'))`
 	err := wmi.Query(query, &dst) // WHERE (BIOSVersion IS NOT NULL)
 	fmt.Println(err)
 	if err != nil {

@@ -27,19 +27,22 @@ type _network struct {
 
 func (si *SysInfo) getNetworkInfo() {
 	var dst []_network
-	query := `SELECT Name,Description,MACAddress,Speed,Manufacturer FROM Win32_NetworkAdapter WHERE (Speed IS NOT NULL) AND (Speed < 9223372036854775807) AND (NOT (PNPDeviceID LIKE 'ROOT%'))`
+
+	// SELECT Name,Description,MACAddress,Speed,Manufacturer FROM Win32_NetworkAdapter WHERE (Speed IS NOT NULL) AND (Speed < 9223372036854775807) AND (NOT (PNPDeviceID LIKE 'ROOT%'))
+	query := `SELECT Name,Description,MACAddress,Speed,Manufacturer FROM Win32_NetworkAdapter WHERE (PhysicalAdapter = True) AND (NOT (PNPDeviceID LIKE 'ROOT%'))`
 	err := wmi.Query(query, &dst) // WHERE (BIOSVersion IS NOT NULL)
 
 	if err != nil {
 		return
 	}
 
+	si.Network = make([]NetworkDevice, 0)
 	for _, m := range dst {
 		nt := NetworkDevice{
 			Name:       m.Name,
 			Driver:     m.Description,
 			MACAddress: m.MACAddress,
-			Speed:      m.Speed,
+			Speed:      0, // TODO
 			Vendor:     m.Manufacturer,
 		}
 		si.Network = append(si.Network, nt)
