@@ -2,10 +2,12 @@ package dao
 
 import (
 	"context"
+	"crypto/md5"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"time"
 
-	"github.com/offer365/example/tools"
 	"github.com/offer365/odin/log"
 	"go.etcd.io/etcd/clientv3"
 	"go.etcd.io/etcd/clientv3/concurrency"
@@ -55,7 +57,7 @@ func (es *etcdStore) Close() {
 func (es *etcdStore) Get(key string, lock bool) (resp *clientv3.GetResponse, err error) {
 	var unlock func()
 	if lock {
-		unlock, err = es.lock(tools.Md5Hex([]byte(key), nil))
+		unlock, err = es.lock(Sha256Hex([]byte(key), nil))
 		defer unlock()
 	}
 	ctx, _ := context.WithTimeout(context.Background(), es.timeout)
@@ -65,7 +67,7 @@ func (es *etcdStore) Get(key string, lock bool) (resp *clientv3.GetResponse, err
 func (es *etcdStore) GetAll(prefix string, lock bool) (resp *clientv3.GetResponse, err error) {
 	var unlock func()
 	if lock {
-		unlock, err = es.lock(tools.Md5Hex([]byte(prefix), nil))
+		unlock, err = es.lock(Sha256Hex([]byte(prefix), nil))
 		defer unlock()
 	}
 	ctx, _ := context.WithTimeout(context.Background(), es.timeout)
@@ -75,7 +77,7 @@ func (es *etcdStore) GetAll(prefix string, lock bool) (resp *clientv3.GetRespons
 func (es *etcdStore) Count(prefix string, lock bool) (resp *clientv3.GetResponse, err error) {
 	var unlock func()
 	if lock {
-		unlock, err = es.lock(tools.Md5Hex([]byte(prefix), nil))
+		unlock, err = es.lock(Sha256Hex([]byte(prefix), nil))
 		defer unlock()
 	}
 	ctx, _ := context.WithTimeout(context.Background(), es.timeout)
@@ -85,7 +87,7 @@ func (es *etcdStore) Count(prefix string, lock bool) (resp *clientv3.GetResponse
 func (es *etcdStore) Put(key, val string, lock bool) (resp *clientv3.PutResponse, err error) {
 	var unlock func()
 	if lock {
-		unlock, err = es.lock(tools.Md5Hex([]byte(key), nil))
+		unlock, err = es.lock(Sha256Hex([]byte(key), nil))
 		defer unlock()
 	}
 	ctx, _ := context.WithTimeout(context.Background(), es.timeout)
@@ -95,7 +97,7 @@ func (es *etcdStore) Put(key, val string, lock bool) (resp *clientv3.PutResponse
 func (es *etcdStore) Del(key string, lock bool) (resp *clientv3.DeleteResponse, err error) {
 	var unlock func()
 	if lock {
-		unlock, err = es.lock(tools.Md5Hex([]byte(key), nil))
+		unlock, err = es.lock(Sha256Hex([]byte(key), nil))
 		defer unlock()
 	}
 	ctx, _ := context.WithTimeout(context.Background(), es.timeout)
@@ -105,7 +107,7 @@ func (es *etcdStore) Del(key string, lock bool) (resp *clientv3.DeleteResponse, 
 func (es *etcdStore) DelAll(prefix string, lock bool) (resp *clientv3.DeleteResponse, err error) {
 	var unlock func()
 	if lock {
-		unlock, err = es.lock(tools.Md5Hex([]byte(prefix), nil))
+		unlock, err = es.lock(Sha256Hex([]byte(prefix), nil))
 		defer unlock()
 	}
 	ctx, _ := context.WithTimeout(context.Background(), es.timeout)
@@ -123,7 +125,7 @@ func (es *etcdStore) Lease(key string, ttl int64) (resp *clientv3.LeaseGrantResp
 func (es *etcdStore) PutWithLease(key, val string, leaseId clientv3.LeaseID, lock bool) (resp *clientv3.PutResponse, err error) {
 	var unlock func()
 	if lock {
-		unlock, err = es.lock(tools.Md5Hex([]byte(key), nil))
+		unlock, err = es.lock(Sha256Hex([]byte(key), nil))
 		defer unlock()
 	}
 	ctx, _ := context.WithTimeout(context.Background(), es.timeout)
@@ -133,7 +135,7 @@ func (es *etcdStore) PutWithLease(key, val string, leaseId clientv3.LeaseID, loc
 func (es *etcdStore) DelWithLease(key string, leaseId clientv3.LeaseID, lock bool) (resp *clientv3.DeleteResponse, err error) {
 	var unlock func()
 	if lock {
-		unlock, err = es.lock(tools.Md5Hex([]byte(key), nil))
+		unlock, err = es.lock(Sha256Hex([]byte(key), nil))
 		defer unlock()
 	}
 	if _, err := es.lease.Revoke(context.TODO(), leaseId); err != nil {
@@ -234,4 +236,23 @@ func (es *etcdStore) lock(name string) (func(), error) {
 		session.Close()
 	}
 	return unlock, nil
+}
+
+
+func Md5Hex(byt []byte, salt []byte) string {
+	h := md5.New()
+	if salt != nil {
+		byt = append(byt, salt...)
+	}
+	h.Write(byt)
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+func Sha256Hex(byt []byte, salt []byte) string {
+	h := sha256.New()
+	if salt != nil {
+		byt = append(byt, salt...)
+	}
+	h.Write(byt)
+	return hex.EncodeToString(h.Sum(nil))
 }
