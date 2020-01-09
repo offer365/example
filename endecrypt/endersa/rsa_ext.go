@@ -31,12 +31,19 @@ func getPubKey(publickey []byte) (*rsa.PublicKey, error) {
 	if block == nil {
 		return nil, errors.New("get public key error")
 	}
+	// x509: failed to parse public key (use ParsePKCS1PublicKey instead for this key format)
+	pub2, err := x509.ParsePKCS1PublicKey(block.Bytes)
+	if err == nil {
+		return pub2, err
+	}
 	// x509 parse public key
 	pub, err := x509.ParsePKIXPublicKey(block.Bytes)
-	if err != nil {
-		return nil, err
+	if err == nil {
+		return pub.(*rsa.PublicKey), err
 	}
-	return pub.(*rsa.PublicKey), err
+
+	return nil, err
+
 }
 
 // 设置私钥

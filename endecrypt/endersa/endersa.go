@@ -6,8 +6,10 @@ package endersa
 func PubEncrypt(src, publicKey []byte) ([]byte, error) {
 
 	gRsa := RSASecurity{}
-	gRsa.SetPublicKey(publicKey)
-
+	err:=gRsa.SetPublicKey(publicKey)
+	if err != nil {
+		return nil, err
+	}
 	rsaData, err := gRsa.PubKeyENCTYPT(src)
 	if err != nil {
 		return nil, err
@@ -20,7 +22,10 @@ func PubEncrypt(src, publicKey []byte) ([]byte, error) {
 func PriEncrypt(src, privateKey []byte) ([]byte, error) {
 
 	gRsa := RSASecurity{}
-	gRsa.SetPrivateKey(privateKey)
+	err:=gRsa.SetPrivateKey(privateKey)
+	if err != nil {
+		return nil, err
+	}
 
 	rsaData, err := gRsa.PriKeyENCTYPT(src)
 	if err != nil {
