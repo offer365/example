@@ -201,6 +201,17 @@ func (es *etcdStore) Watch(ctx context.Context, key string, putFunc EventFunc, d
 	}
 }
 
+func (es *etcdStore) MoveLeader(transfereeID uint64) (resp *clientv3.MoveLeaderResponse, err error) {
+	resp,err=es.client.MoveLeader(context.TODO(),transfereeID)
+
+	return
+}
+
+func (es *etcdStore) MemberList() (resp *clientv3.MemberListResponse, err error) {
+	resp,err=es.client.MemberList(context.TODO())
+	return
+}
+
 // 锁
 func (es *etcdStore) lock(name string) (func(), error) {
 	// 创建一个10s的租约(lease)

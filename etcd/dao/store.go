@@ -55,6 +55,8 @@ type Store interface {
 	KeepOnce(leaseId clientv3.LeaseID) (resp *clientv3.LeaseKeepAliveResponse, err error)
 	KeepAlive(ctx context.Context, leaseId clientv3.LeaseID) (err error)
 	Watch(ctx context.Context, key string, putFunc EventFunc, delFunc EventFunc)
+	MoveLeader(transfereeID uint64) (resp *clientv3.MoveLeaderResponse, err error)
+	MemberList() (resp *clientv3.MemberListResponse, err error)
 	Close()
 }
 
