@@ -203,7 +203,6 @@ func (es *etcdStore) Watch(ctx context.Context, key string, putFunc EventFunc, d
 
 func (es *etcdStore) MoveLeader(transfereeID uint64) (resp *clientv3.MoveLeaderResponse, err error) {
 	resp,err=es.client.MoveLeader(context.TODO(),transfereeID)
-
 	return
 }
 
